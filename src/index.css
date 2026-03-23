@@ -1,0 +1,43 @@
+/* @import url() FONT IMPORTS MUST ALWAYS BE AT THE VERY TOP OF THIS FILE, ABOVE THE TAILWIND IMPORTS — DO NOT DELETE THIS COMMENT */
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;700&family=DM+Sans:wght@400;500;600&display=swap');
+
+/* CRITICAL: THE FOLLOWING TAILWIND IMPORTS MUST NEVER BE DELETED OR REORDERED — DO NOT DELETE THIS COMMENT */
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+/* END TAILWIND IMPORTS — ALL OTHER CSS MUST GO BELOW THIS LINE */
+
+:root {
+  --color-cream: #FAF7F2;
+  --color-warm-dark: #2D2A26;
+  --color-mauve: #E2C6FD;
+  --color-mauve-dark: #C9A4E8;
+  --color-blush: #FFBCF2;
+  --color-orange: #FFAE48;
+  --color-tomato: #FF6B4C;
+  --color-sage: #8BA888;
+  --color-sage-dark: #6E8E6B;
+  --color-warm-gray: #B8B2A8;
+  --color-warm-gray-light: #E8E3DB;
+}
+html, body, #root {
+  min-height: 100%;
+  height: 100%;
+}
+body {
+  background-color: var(--color-cream);
+  color: var(--color-warm-dark);
+  font-family: 'DM Sans', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+/* Selection color */
+::selection {
+  background-color: #E2C6FD80; /* Mauve with opacity */
+  color: var(--color-warm-dark);
+}
+/* Textarea styling */
+textarea:focus {
+  outline: none;
+}
