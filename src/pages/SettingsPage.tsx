@@ -1,10 +1,114 @@
-import React, { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-export function SettingsPage() {
+import { ArrowLeftIcon } from 'lucide-react';
+import type { User } from '@supabase/supabase-js';
+import { supabase } from '../lib/supabase';
+import type { AccessStatus } from '../lib/subscription';
+
+interface SettingsPageProps {
+  user: User;
+  accessStatus: AccessStatus;
+  onBack: () => void;
+}
+
+export function SettingsPage({ user, accessStatus, onBack }: SettingsPageProps) {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [managingBilling, setManagingBilling] = useState(false);
+  const [billingError, setBillingError] = useState<string | null>(null);
+  const [trialDaysLeft, setTrialDaysLeft] = useState<number | null>(null);
+  const [passwordResetSent, setPasswordResetSent] = useState(false);
+  const [passwordResetLoading, setPasswordResetLoading] = useState(false);
+
+  useEffect(() => {
+    if (accessStatus !== 'trial') return;
+    supabase
+      .from('profiles')
+      .select('trial_started_at')
+      .eq('id', user.id)
+      .single()
+      .then(({ data }) => {
+        if (!data?.trial_started_at) return;
+        const trialEnd = new Date(data.trial_started_at);
+        trialEnd.setDate(trialEnd.getDate() + 14);
+        const msLeft = trialEnd.getTime() - Date.now();
+        setTrialDaysLeft(Math.max(0, Math.ceil(msLeft / (1000 * 60 * 60 * 24))));
+      });
+  }, [accessStatus, user.id]);
+
+  const handleChangePassword = async () => {
+    if (!user.email) return;
+    setPasswordResetLoading(true);
+    await supabase.auth.resetPasswordForEmail(user.email, {
+      redirectTo: window.location.origin,
+    });
+    setPasswordResetLoading(false);
+    setPasswordResetSent(true);
+  };
+
+  const handleManage = async () => {
+    setManagingBilling(true);
+    setBillingError(null);
+    try {
+      const fnName = accessStatus === 'subscribed'
+        ? 'create-portal-session'
+        : 'create-checkout-session';
+
+      const { data, error } = await supabase.functions.invoke(fnName, {
+        body: { origin: window.location.origin },
+      });
+
+      if (error) {
+        const raw = await (error as any).context?.text?.().catch(() => null);
+        setBillingError(raw ?? error.message);
+        return;
+      }
+
+      if (!data?.url) {
+        setBillingError(`No redirect URL returned: ${JSON.stringify(data)}`);
+        return;
+      }
+
+      window.location.href = data.url;
+    } catch {
+      setBillingError('Network error. Please try again.');
+    } finally {
+      setManagingBilling(false);
+    }
+  };
+
+  const planLabel = accessStatus === 'subscribed'
+    ? 'Paid plan'
+    : accessStatus === 'trial'
+    ? 'Free trial'
+    : 'Trial expired';
+
+  const planSub = accessStatus === 'subscribed'
+    ? '$5 / month · cancel anytime'
+    : accessStatus === 'trial'
+    ? trialDaysLeft === null
+      ? 'Free trial'
+      : trialDaysLeft === 1
+      ? '1 day left in trial'
+      : `${trialDaysLeft} days left in trial`
+    : 'Subscribe to keep access';
+
+  const manageLabel = managingBilling
+    ? 'Loading…'
+    : accessStatus === 'subscribed'
+    ? 'Manage'
+    : 'Subscribe';
   return (
-    <div className="min-h-screen bg-cream px-5 pt-6 pb-24">
+    <div className="min-h-screen bg-cream px-5 pt-4 pb-24">
       <div className="max-w-md mx-auto">
+        <div className="flex items-center mb-6">
+          <motion.button
+            onClick={onBack}
+            className="w-9 h-9 rounded-lg border-2 border-warm-gray-light bg-cream-dark flex items-center justify-center cursor-pointer hover:border-warm-dark hover:shadow-chunky-sm transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-mauve focus-visible:ring-offset-2 focus-visible:ring-offset-cream"
+            whileTap={{ scale: 0.92, y: 1 }}
+            aria-label="Go home">
+            <ArrowLeftIcon className="w-4 h-4 text-warm-dark-light" strokeWidth={2.5} />
+          </motion.button>
+        </div>
         <motion.h1
           className="font-heading text-3xl font-bold text-warm-dark mb-8"
           initial={{
@@ -47,9 +151,13 @@ export function SettingsPage() {
               Account
             </h2>
             <div className="space-y-3">
-              <SettingsRow label="Username" value="@yourusername" />
-              <SettingsRow label="Email" value="you@email.com" />
+              <SettingsRow label="Email" value={user.email ?? '—'} />
             </div>
+            <button
+              onClick={() => supabase.auth.signOut()}
+              className="mt-4 px-5 py-2.5 rounded-lg border-2 border-warm-dark bg-cream-dark font-heading font-semibold text-sm text-warm-dark-light shadow-chunky-sm cursor-pointer active:translate-y-[2px] active:shadow-chunky-pressed transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-mauve focus-visible:ring-offset-2 focus-visible:ring-offset-cream">
+              Sign out
+            </button>
           </motion.section>
 
           {/* Security */}
@@ -73,23 +181,28 @@ export function SettingsPage() {
             <h2 className="font-heading text-base font-bold text-warm-dark mb-4">
               Security
             </h2>
-            <button
-              className="
-                px-5 py-2.5 rounded-lg border-2 border-warm-dark bg-cream-dark
-                font-heading font-semibold text-sm text-warm-dark
-                shadow-chunky-sm cursor-pointer
-                active:translate-y-[2px] active:shadow-chunky-pressed transition-all
-                focus:outline-none focus-visible:ring-2 focus-visible:ring-mauve focus-visible:ring-offset-2 focus-visible:ring-offset-cream
-              ">
+            {passwordResetSent ? (
+              <p className="font-body text-sm text-warm-dark-light">
+                Check your email for a reset link. ✓
+              </p>
+            ) : (
+              <button
+                onClick={handleChangePassword}
+                disabled={passwordResetLoading}
+                className={`
+                  px-5 py-2.5 rounded-lg border-2 border-warm-dark bg-cream-dark
+                  font-heading font-semibold text-sm text-warm-dark-light
+                  shadow-chunky-sm cursor-pointer
+                  active:translate-y-[2px] active:shadow-chunky-pressed transition-all
+                  focus:outline-none focus-visible:ring-2 focus-visible:ring-mauve focus-visible:ring-offset-2 focus-visible:ring-offset-cream
+                  ${passwordResetLoading ? 'opacity-60 cursor-not-allowed' : ''}
+                `}
+              >
 
 
-
-
-
-
-              
-              Change password
-            </button>
+                {passwordResetLoading ? 'Sending…' : 'Change password'}
+              </button>
+            )}
           </motion.section>
 
           {/* Subscription */}
@@ -115,31 +228,30 @@ export function SettingsPage() {
             </h2>
             <div className="flex items-center justify-between">
               <div>
-                <p className="font-body text-sm text-warm-dark font-medium">
-                  Free plan
+                <p className="font-body text-sm text-warm-dark-light font-medium">
+                  {planLabel}
                 </p>
-                <p className="font-body text-xs text-warm-gray">
-                  Unlimited unsnags
+                <p className="font-body text-xs text-warm-dark-light">
+                  {planSub}
                 </p>
               </div>
               <button
-                className="
+                onClick={handleManage}
+                disabled={managingBilling}
+                className={`
                   px-5 py-2.5 rounded-lg border-2 border-warm-dark bg-mauve
-                  font-heading font-semibold text-sm text-warm-dark
+                  font-heading font-semibold text-sm text-warm-dark-light
                   shadow-chunky-sm cursor-pointer
                   active:translate-y-[2px] active:shadow-chunky-pressed transition-all
                   focus:outline-none focus-visible:ring-2 focus-visible:ring-mauve focus-visible:ring-offset-2 focus-visible:ring-offset-cream
-                ">
-
-
-
-
-
-
-                
-                Manage
+                  ${managingBilling ? 'opacity-60 cursor-not-allowed' : ''}
+                `}>
+                {manageLabel}
               </button>
             </div>
+            {billingError && (
+              <p className="mt-3 font-body text-xs text-tomato">{billingError}</p>
+            )}
           </motion.section>
 
           {/* Danger zone */}
@@ -163,7 +275,7 @@ export function SettingsPage() {
             <h2 className="font-heading text-base font-bold text-tomato mb-2">
               Danger zone
             </h2>
-            <p className="font-body text-xs text-warm-gray mb-4">
+            <p className="font-body text-xs text-warm-dark-light mb-4">
               This permanently deletes your account and all your data.
             </p>
 
@@ -220,7 +332,7 @@ export function SettingsPage() {
                 </button>
                 <button
                 onClick={() => setShowDeleteConfirm(false)}
-                className="font-body text-sm text-warm-gray underline cursor-pointer hover:text-warm-dark transition-colors">
+                className="font-body text-sm text-warm-dark-light underline cursor-pointer hover:text-warm-dark transition-colors">
                 
                   cancel
                 </button>
@@ -235,8 +347,8 @@ export function SettingsPage() {
 function SettingsRow({ label, value }: {label: string;value: string;}) {
   return (
     <div className="flex items-center justify-between">
-      <span className="font-body text-sm text-warm-gray">{label}</span>
-      <span className="font-body text-sm text-warm-dark font-medium">
+      <span className="font-body text-sm text-warm-dark-light">{label}</span>
+      <span className="font-body text-sm text-warm-dark-light font-medium">
         {value}
       </span>
     </div>);

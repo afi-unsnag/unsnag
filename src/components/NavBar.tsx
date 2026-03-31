@@ -57,9 +57,9 @@ function NavItem({
       onClick={onClick}
       className={`
         flex flex-col items-center gap-0.5 px-4 py-1 cursor-pointer
-        transition-colors duration-150
-        focus:outline-none focus-visible:ring-2 focus-visible:ring-mauve focus-visible:ring-offset-2 focus-visible:ring-offset-cream rounded-lg
-        ${isActive ? 'text-mauve-dark' : 'text-warm-gray'}
+        transition-colors duration-150 rounded-lg
+        focus:outline-none focus-visible:ring-2 focus-visible:ring-mauve focus-visible:ring-offset-2 focus-visible:ring-offset-cream
+        ${isActive ? 'text-mauve' : 'text-warm-dark-light'}
       `}
       aria-label={label}
       aria-current={isActive ? 'page' : undefined}>
@@ -81,17 +81,6 @@ function NavItem({
         
         {label}
       </span>
-      {isActive &&
-      <motion.div
-        className="w-1 h-1 rounded-full bg-mauve-dark"
-        layoutId="nav-indicator"
-        transition={{
-          type: 'spring',
-          stiffness: 500,
-          damping: 30
-        }} />
-
-      }
     </button>);
 
 }

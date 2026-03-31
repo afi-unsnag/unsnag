@@ -52,8 +52,8 @@ export function SensationChips({ selected, onToggle }: SensationChipsProps) {
             className={`
               px-3.5 py-1.5 rounded-lg border-2 font-body text-sm font-medium cursor-pointer
               transition-colors duration-150
-              focus:outline-none focus-visible:ring-2 focus-visible:ring-blush focus-visible:ring-offset-2 focus-visible:ring-offset-cream
-              ${isSelected ? 'border-warm-dark bg-blush text-warm-dark shadow-chunky-sm' : 'border-warm-gray-light bg-cream-dark text-warm-dark-light'}
+              focus:outline-none focus-visible:ring-2 focus-visible:ring-orange focus-visible:ring-offset-2 focus-visible:ring-offset-cream
+              ${isSelected ? 'border-warm-dark bg-orange-dark text-warm-dark shadow-chunky-sm' : 'border-warm-gray-light bg-cream-dark text-warm-dark-light'}
             `}
             initial={{
               opacity: 0,

@@ -23,7 +23,7 @@ export default {content: [
         // Secondary Pops
         blush: '#FFBCF2',
         'blush-dark': '#E8A0D8',
-        orange: '#FFAE48',
+        orange: '#FFA846',
         'orange-dark': '#E89A30',
         tomato: '#FF6B4C',
         'tomato-dark': '#E85A3A',

@@ -88,7 +88,7 @@ export function CompletionScreen({
           }
         }}>
         
-        You're unstuck.
+        Unsnagged.
       </motion.h2>
 
       <motion.p
@@ -109,9 +109,7 @@ export function CompletionScreen({
           }
         }}>
         
-        That's it. No homework. No follow-up.
-        <br />
-        Go do your thing.
+        That's it. No homework. No spiraling. Go do your thing.
       </motion.p>
 
       {/* Saved confirmation */}
@@ -132,52 +130,13 @@ export function CompletionScreen({
         ✓ saved to your history
       </motion.p>
 
-      {/* Unsnag counter */}
-      <motion.div
-        className="px-4 py-2 rounded-lg border-2 border-warm-gray-light bg-cream-dark font-body text-sm text-warm-gray mb-10"
-        variants={{
-          hidden: {
-            opacity: 0,
-            scale: 0.9
-          },
-          visible: {
-            opacity: 1,
-            scale: 1,
-            transition: {
-              type: 'spring',
-              stiffness: 400,
-              damping: 20
-            }
-          }
-        }}>
-        
-        unsnags today:{' '}
-        <motion.span
-          className="font-heading font-bold text-warm-dark"
-          key={unsnagCount}
-          initial={{
-            scale: 1.4
-          }}
-          animate={{
-            scale: 1
-          }}
-          transition={{
-            type: 'spring',
-            stiffness: 500,
-            damping: 15
-          }}>
-          
-          {unsnagCount}
-        </motion.span>
-      </motion.div>
-
       {/* Buttons */}
       <div className="flex flex-col gap-3">
         <motion.button
           onClick={onRestart}
           className="
-            px-8 py-4 rounded-xl border-[3px] border-warm-dark bg-cream
-            font-heading font-semibold text-lg text-warm-dark
+            px-8 py-4 rounded-xl border-[3px] border-warm-dark bg-mauve
+            font-heading font-semibold text-lg text-warm-dark-light
             shadow-chunky cursor-pointer
             focus:outline-none focus-visible:ring-2 focus-visible:ring-warm-dark focus-visible:ring-offset-2 focus-visible:ring-offset-cream
           "
@@ -215,12 +174,12 @@ export function CompletionScreen({
             damping: 15
           }}>
           
-          Snag something else
+          Unsnag something else
         </motion.button>
 
         <motion.button
           onClick={onGoHome}
-          className="font-body text-sm text-warm-gray underline underline-offset-2 decoration-warm-gray-light cursor-pointer hover:text-warm-dark transition-colors"
+          className="font-body text-sm text-warm-dark-light underline underline-offset-2 decoration-warm-gray-light cursor-pointer hover:text-warm-dark transition-colors"
           variants={{
             hidden: {
               opacity: 0

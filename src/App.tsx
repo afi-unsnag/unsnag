@@ -1,14 +1,19 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
+import type { User } from '@supabase/supabase-js';
+import { supabase } from './lib/supabase';
+import { checkAccessStatus, type AccessStatus } from './lib/subscription';
+import { AuthScreen } from './components/AuthScreen';
+import { PaywallScreen } from './components/PaywallScreen';
 import { LandingScreen } from './components/LandingScreen';
 import { LoopStep } from './components/LoopStep';
 import { CompletionScreen } from './components/CompletionScreen';
 import { NavBar } from './components/NavBar';
-import { QuickLogModal } from './components/QuickLogModal';
 import { HistoryPage } from './pages/HistoryPage';
 import { SavedPage } from './pages/SavedPage';
 import { SessionDetailPage } from './pages/SessionDetailPage';
 import { SettingsPage } from './pages/SettingsPage';
+
 /* ---- Data types ---- */
 interface SessionInsight {
   whatsYours: string[];
@@ -26,6 +31,8 @@ interface Session {
   askTranscript?: string;
   insight?: SessionInsight;
   goTranscript?: string;
+  aiTitle?: string;
+  aiTakeaway?: string;
 }
 interface QuickLog {
   id: string;
@@ -33,143 +40,271 @@ interface QuickLog {
   note: string;
 }
 type NavTab = 'home' | 'history' | 'saved' | 'settings';
-type AppScreen =
-'landing' |
-'loop' |
-'done' |
-'history' |
-'saved' |
-'session-detail' |
-'settings';
-/* ---- Mock seed data ---- */
-const MOCK_SESSIONS: Session[] = [
-{
-  id: 'mock-1',
-  timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000),
-  emotions: ['anxious', 'overwhelmed'],
-  sensations: ['tight chest', 'shallow breathing'],
-  completed: true,
-  intakeTranscript:
-  "I have this huge presentation tomorrow and I haven't even finished the slides. I feel like everyone is going to realize I don't know what I'm talking about.",
-  understandResponse:
-  "Imposter syndrome hits hardest right before something actually matters. That fear isn't proof you're a fraud — it's proof you care.",
-  askTranscript:
-  "You're a fraud and they're all going to see it. You should just call in sick.",
-  insight: {
-    whatsYours: ['the unfinished slides', 'the spiral starting', 'caring about doing well'],
-    whatsNotYours: ["what other people think", "their expectations of you", "whether they believe you"],
-    affirmation: "Caring this much means it matters — that's not weakness."
-  },
-  goTranscript:
-  "I'm going to finish just the next three slides tonight, and then go to sleep. That's enough for now."
-},
-{
-  id: 'mock-2',
-  timestamp: new Date(Date.now() - 26 * 60 * 60 * 1000),
-  emotions: ['frustrated', 'guilty'],
-  sensations: ['clenched jaw', 'stomach knot'],
-  completed: true,
-  intakeTranscript:
-  'I snapped at my partner again over something so stupid. I just feel so much pressure right now.',
-  understandResponse:
-  "Snapping isn't about them — it's what happens when you've been holding too much for too long. The pressure had to go somewhere.",
-  askTranscript: "You're a terrible partner. You're pushing them away.",
-  insight: {
-    whatsYours: ['the snap', "the pressure you've been carrying", 'the guilt after'],
-    whatsNotYours: ["their ability to handle your stress", "whether they'll stay"],
-    affirmation: "Knowing you snapped means you're paying attention. That's the start."
-  },
-  goTranscript:
-  "I'm going to go apologize right now and explain that I'm just stressed about work."
-}];
+type AppScreen = 'landing' | 'loop' | 'done' | 'history' | 'saved' | 'session-detail' | 'settings';
 
-const MOCK_QUICKLOGS: QuickLog[] = [
-{
-  id: 'qlog-1',
-  timestamp: new Date(Date.now() - 4 * 60 * 60 * 1000),
-  note: 'That call with Sarah felt off. She sounded distant and I immediately started spiraling about what I did wrong.'
-}];
+/* ---- AI session summary generator ---- */
+async function generateSessionSummaries(
+  intakeTranscript: string | undefined,
+  goTranscript: string | undefined,
+  emotions: string[],
+  askTranscript?: string | undefined,
+): Promise<{ title: string; takeaway: string } | null> {
+  if (!intakeTranscript && !goTranscript) return null;
+  try {
+    const call = (system: string, content: string) =>
+      fetch('/api/anthropic/v1/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'claude-haiku-4-5-20251001',
+          max_tokens: 40,
+          system,
+          messages: [{ role: 'user', content }],
+        }),
+      }).then((r) => r.json() as Promise<{ content: Array<{ type: string; text?: string }> }>);
+
+    const [titleData, takeawayData] = await Promise.all([
+      intakeTranscript
+        ? call(
+            'Write a 4–6 word title describing what this person was processing internally — their experience, not anyone else\'s behavior or character. Focus on what they were feeling or navigating, not on labeling other people. No blame, no characterization of others. Use second person ("you", "your") — never "her", "his", "she", "he", or "they". No quotes, no punctuation, plain text only.',
+            `Emotions: ${emotions.join(', ')}. They said: "${intakeTranscript}"`,
+          )
+        : null,
+      (goTranscript || askTranscript)
+        ? call(
+            'Write a short takeaway (max 8 words) that captures the internal shift or insight this person reached — how they are seeing this differently now, what clicked for them. Focus on perspective change, not action steps. Use second person ("you", "your") — never "her", "his", "she", "he", or "they". No blame, no judgment, no characterizing others. No quotes, plain text only.',
+            [
+              askTranscript ? `What the feeling said: "${askTranscript}"` : '',
+              goTranscript ? `What they said at the end: "${goTranscript}"` : '',
+            ].filter(Boolean).join('\n'),
+          )
+        : null,
+    ]);
+
+    return {
+      title: titleData?.content?.find((b) => b.type === 'text')?.text?.trim() ?? '',
+      takeaway: takeawayData?.content?.find((b) => b.type === 'text')?.text?.trim() ?? '',
+    };
+  } catch {
+    return null;
+  }
+}
+
+/* ---- Streak calculator ---- */
+function calcStreak(sessions: Session[]): number {
+  const completed = sessions.filter((s) => s.completed);
+  if (completed.length === 0) return 0;
+
+  const fmt = (d: Date) =>
+    `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+
+  const dateSet = new Set(completed.map((s) => fmt(s.timestamp)));
+  const dates = [...dateSet].sort().reverse(); // most-recent first
+
+  const today = new Date();
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+
+  // Streak is broken if the most recent session isn't today or yesterday
+  if (dates[0] !== fmt(today) && dates[0] !== fmt(yesterday)) return 0;
+
+  let streak = 0;
+  const cursor = new Date(dates[0]);
+  for (const d of dates) {
+    if (d === fmt(cursor)) {
+      streak++;
+      cursor.setDate(cursor.getDate() - 1);
+    } else {
+      break;
+    }
+  }
+  return streak;
+}
+
+/* ---- DB row → app type mappers ---- */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function rowToSession(row: any): Session {
+  return {
+    id: row.id,
+    timestamp: new Date(row.created_at),
+    emotions: row.emotions ?? [],
+    sensations: row.sensations ?? [],
+    completed: row.completed ?? false,
+    intakeTranscript: row.intake_transcript ?? undefined,
+    understandResponse: row.understand_response ?? undefined,
+    askTranscript: row.ask_transcript ?? undefined,
+    insight: row.insight ?? undefined,
+    goTranscript: row.go_transcript ?? undefined,
+    aiTitle: row.ai_title ?? undefined,
+    aiTakeaway: row.ai_takeaway ?? undefined,
+  };
+}
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function rowToQuickLog(row: any): QuickLog {
+  return { id: row.id, timestamp: new Date(row.created_at), note: row.note };
+}
 
 /* ---- App ---- */
 export function App() {
+  const [user, setUser] = useState<User | null | undefined>(undefined); // undefined = loading
+  const [accessStatus, setAccessStatus] = useState<AccessStatus>('loading');
   const [screen, setScreen] = useState<AppScreen>('landing');
   const [stepIndex, setStepIndex] = useState(0);
-  const [unsnagCount, setUnsnagCount] = useState(MOCK_SESSIONS.length);
-  // Session data
-  const [sessions, setSessions] = useState<Session[]>(MOCK_SESSIONS);
-  const [quickLogs, setQuickLogs] = useState<QuickLog[]>(MOCK_QUICKLOGS);
+  const [unsnagCount, setUnsnagCount] = useState(0);
+  const [sessions, setSessions] = useState<Session[]>([]);
+  const [quickLogs, setQuickLogs] = useState<QuickLog[]>([]);
   const [selectedSession, setSelectedSession] = useState<Session | null>(null);
-  // Current session state
+  // Current loop state
   const [currentEmotions, setCurrentEmotions] = useState<string[]>([]);
   const [currentSensations, setCurrentSensations] = useState<string[]>([]);
-  const [transcripts, setTranscripts] = useState<{
-    intake?: string;
-    ask?: string;
-    go?: string;
-  }>({});
+  const [transcripts, setTranscripts] = useState<{ intake?: string; ask?: string; go?: string }>({});
   const [currentUnderstandResponse, setCurrentUnderstandResponse] = useState<string | undefined>();
   const [currentInsight, setCurrentInsight] = useState<SessionInsight | undefined>();
-  /* ---- Navigation ---- */
-  const showNav =
-  screen === 'landing' ||
-  screen === 'history' ||
-  screen === 'saved' ||
-  screen === 'settings';
-  const activeTab: NavTab =
-  screen === 'history' || screen === 'session-detail' ?
-  'history' :
-  screen === 'saved' ?
-  'saved' :
-  screen === 'settings' ?
-  'settings' :
-  'home';
-  const handleNavigate = useCallback((tab: NavTab) => {
-    if (tab === 'home') setScreen('landing');else
-    if (tab === 'history') setScreen('history');else
-    if (tab === 'saved') setScreen('saved');else
-    if (tab === 'settings') setScreen('settings');
+  const [currentSavedLogId, setCurrentSavedLogId] = useState<string | null>(null);
+  const summaryBackfillRan = useRef(false);
+
+  /* ---- Auth ---- */
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => setUser(data.session?.user ?? null));
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+    return () => subscription.unsubscribe();
   }, []);
+
+  /* ---- Check trial / subscription access ---- */
+  useEffect(() => {
+    if (!user) return;
+
+    // If Stripe redirected back after successful checkout, wait briefly for
+    // the webhook to land before re-checking (webhook is near-instant).
+    const params = new URLSearchParams(window.location.search);
+    const delay = params.get('checkout') === 'success' ? 2000 : 0;
+    if (delay) window.history.replaceState({}, '', window.location.pathname);
+
+    const run = () => checkAccessStatus(user.id).then(setAccessStatus);
+    if (delay) { setTimeout(run, delay); } else { void run(); }
+  }, [user]);
+
+  /* ---- Load data when user logs in ---- */
+  useEffect(() => {
+    if (!user) return;
+
+    supabase
+      .from('sessions')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+      .then(({ data }) => {
+        if (data) {
+          const mapped = data.map(rowToSession);
+          setSessions(mapped);
+          setUnsnagCount(mapped.length);
+        }
+      });
+
+    supabase
+      .from('quick_logs')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+      .then(({ data }) => {
+        if (data) setQuickLogs(data.map(rowToQuickLog));
+      });
+  }, [user]);
+
+  /* ---- Backfill AI summaries for existing sessions ---- */
+  useEffect(() => {
+    if (summaryBackfillRan.current) return;
+    if (import.meta.env.VITE_MOCK_AI === 'true') return;
+    const needsSummary = sessions.filter(
+      (s) => s.completed && !s.aiTitle && (s.intakeTranscript || s.goTranscript),
+    );
+    if (needsSummary.length === 0) return;
+
+    summaryBackfillRan.current = true;
+
+    void (async () => {
+      for (const session of needsSummary) {
+        const summaries = await generateSessionSummaries(
+          session.intakeTranscript,
+          session.goTranscript,
+          session.emotions,
+          session.askTranscript,
+        );
+        if (!summaries?.title && !summaries?.takeaway) continue;
+        await supabase
+          .from('sessions')
+          .update({ ai_title: summaries.title || null, ai_takeaway: summaries.takeaway || null })
+          .eq('id', session.id);
+        setSessions((prev) =>
+          prev.map((s) =>
+            s.id === session.id
+              ? { ...s, aiTitle: summaries.title || undefined, aiTakeaway: summaries.takeaway || undefined }
+              : s,
+          ),
+        );
+      }
+    })();
+  }, [sessions]);
+
+  /* ---- Navigation ---- */
+  const showNav = screen === 'landing' || screen === 'history' || screen === 'saved' || screen === 'settings';
+  const activeTab: NavTab =
+    screen === 'history' || screen === 'session-detail' ? 'history' :
+    screen === 'saved' ? 'saved' :
+    screen === 'settings' ? 'settings' : 'home';
+
+  const handleNavigate = useCallback((tab: NavTab) => {
+    if (tab === 'home') setScreen('landing');
+    else if (tab === 'history') setScreen('history');
+    else if (tab === 'saved') setScreen('saved');
+    else if (tab === 'settings') setScreen('settings');
+  }, []);
+
   const handleViewSession = useCallback((session: Session) => {
     setSelectedSession(session);
     setScreen('session-detail');
   }, []);
+
   /* ---- Loop flow ---- */
-const handleStart = useCallback(() => {
+  const resetLoop = useCallback(() => {
     setStepIndex(0);
     setCurrentEmotions([]);
     setCurrentSensations([]);
     setTranscripts({});
     setCurrentUnderstandResponse(undefined);
     setCurrentInsight(undefined);
-    setScreen('loop');
+    setCurrentSavedLogId(null);
   }, []);
-  const handleStartFromSaved = useCallback((note: string) => {
-    setStepIndex(0);
-    setCurrentEmotions([]);
-    setCurrentSensations([]);
-    setTranscripts({
-      intake: note
-    });
-    setCurrentUnderstandResponse(undefined);
-    setCurrentInsight(undefined);
+
+  const handleStart = useCallback(() => {
+    resetLoop();
     setScreen('loop');
+  }, [resetLoop]);
+
+  const handleStartFromSaved = useCallback((log: QuickLog) => {
+    resetLoop();
+    setCurrentSavedLogId(log.id);
+    setTranscripts({ intake: log.note });
+    setScreen('loop');
+  }, [resetLoop]);
+
+  const handleSaveTranscript = useCallback((step: 'intake' | 'ask' | 'go', text: string) => {
+    setTranscripts((prev) => ({ ...prev, [step]: text }));
   }, []);
-  const handleSaveTranscript = useCallback(
-    (step: 'intake' | 'ask' | 'go', text: string) => {
-      setTranscripts((prev) => ({
-        ...prev,
-        [step]: text
-      }));
-    },
-    []
-  );
+
   const handleNextStep = useCallback(() => {
     setStepIndex((s) => s + 1);
   }, []);
 
-  const handleComplete = useCallback((goTranscript: string) => {
+  const handlePrevStep = useCallback(() => {
+    setStepIndex((s) => Math.max(0, s - 1));
+  }, []);
+
+  const handleComplete = useCallback(async (goTranscript: string) => {
     const newSession: Session = {
-      id: `session-${Date.now()}`,
+      id: `local-${Date.now()}`,
       timestamp: new Date(),
       emotions: [...currentEmotions],
       sensations: [...currentSensations],
@@ -180,228 +315,196 @@ const handleStart = useCallback(() => {
       insight: currentInsight,
       goTranscript,
     };
+
+    // Optimistically update UI
     setSessions((prev) => [newSession, ...prev]);
     setUnsnagCount((c) => c + 1);
+
+    // Remove the saved log that was used to start this session
+    const logId = currentSavedLogId;
+    if (logId) {
+      setQuickLogs((prev) => prev.filter((l) => l.id !== logId));
+      setCurrentSavedLogId(null);
+    }
+
     setScreen('done');
-  }, [currentEmotions, currentSensations, transcripts, currentUnderstandResponse, currentInsight]);
+
+    // Persist to Supabase
+    if (user) {
+      const { data, error } = await supabase.from('sessions').insert({
+        user_id: user.id,
+        emotions: currentEmotions,
+        sensations: currentSensations,
+        completed: true,
+        intake_transcript: transcripts.intake ?? null,
+        understand_response: currentUnderstandResponse ?? null,
+        ask_transcript: transcripts.ask ?? null,
+        insight: currentInsight ?? null,
+        go_transcript: goTranscript,
+      }).select().single();
+
+      if (!error && data) {
+        const saved = rowToSession(data);
+        setSessions((prev) => [saved, ...prev.filter((s) => s.id !== newSession.id)]);
+
+        // Generate AI title + takeaway in the background
+        if (import.meta.env.VITE_MOCK_AI !== 'true') {
+          void generateSessionSummaries(transcripts.intake, goTranscript, currentEmotions, transcripts.ask)
+            .then(async (summaries) => {
+              if (!summaries?.title && !summaries?.takeaway) return;
+              await supabase
+                .from('sessions')
+                .update({ ai_title: summaries.title || null, ai_takeaway: summaries.takeaway || null })
+                .eq('id', data.id);
+              setSessions((prev) =>
+                prev.map((s) =>
+                  s.id === data.id
+                    ? { ...s, aiTitle: summaries.title || undefined, aiTakeaway: summaries.takeaway || undefined }
+                    : s,
+                ),
+              );
+            });
+        }
+      }
+
+      // Delete the saved log from DB (logId already captured above)
+      if (logId) {
+        await supabase.from('quick_logs').delete().eq('id', logId);
+      }
+    }
+  }, [user, currentEmotions, currentSensations, transcripts, currentUnderstandResponse, currentInsight, currentSavedLogId]);
+
   const handleToggleEmotion = useCallback((emotion: string) => {
-    setCurrentEmotions((prev) =>
-    prev.includes(emotion) ?
-    prev.filter((e) => e !== emotion) :
-    [...prev, emotion]
-    );
+    setCurrentEmotions((prev) => prev.includes(emotion) ? prev.filter((e) => e !== emotion) : [...prev, emotion]);
   }, []);
+
   const handleToggleSensation = useCallback((sensation: string) => {
-    setCurrentSensations((prev) =>
-    prev.includes(sensation) ?
-    prev.filter((s) => s !== sensation) :
-    [...prev, sensation]
-    );
+    setCurrentSensations((prev) => prev.includes(sensation) ? prev.filter((s) => s !== sensation) : [...prev, sensation]);
   }, []);
-  const handleRestart = useCallback(() => {
-    handleStart();
-  }, [handleStart]);
-  const handleGoHome = useCallback(() => {
-    setScreen('landing');
-  }, []);
+
+  const handleGoHome = useCallback(() => setScreen('landing'), []);
+
+  const handleDeleteSession = useCallback(async (id: string) => {
+    setSessions((prev) => prev.filter((s) => s.id !== id));
+    if (user) await supabase.from('sessions').delete().eq('id', id);
+  }, [user]);
+
+  const handleDeleteAllSessions = useCallback(async () => {
+    setSessions([]);
+    setUnsnagCount(0);
+    if (user) await supabase.from('sessions').delete().eq('user_id', user.id);
+  }, [user]);
+
   /* ---- Quick log ---- */
-  const handleSaveQuickLog = useCallback((note: string) => {
-    const newLog: QuickLog = {
-      id: `qlog-${Date.now()}`,
-      timestamp: new Date(),
-      note
-    };
-    setQuickLogs((prev) => [newLog, ...prev]);
-  }, []);
+  const handleSaveQuickLog = useCallback(async (note: string) => {
+    const optimistic: QuickLog = { id: `local-${Date.now()}`, timestamp: new Date(), note };
+    setQuickLogs((prev) => [optimistic, ...prev]);
+
+    if (user) {
+      const { data, error } = await supabase.from('quick_logs').insert({
+        user_id: user.id,
+        note,
+      }).select().single();
+
+      if (!error && data) {
+        setQuickLogs((prev) => [rowToQuickLog(data), ...prev.filter((l) => l.id !== optimistic.id)]);
+      }
+    }
+  }, [user]);
+
+  /* ---- Loading / Auth / Access gates ---- */
+  if (user === undefined || (user && accessStatus === 'loading')) {
+    return <div className="min-h-screen bg-cream" />;
+  }
+  if (user === null) {
+    return <AuthScreen />;
+  }
+  if (accessStatus === 'expired') {
+    return <PaywallScreen user={user} onAccessGranted={() => setAccessStatus('subscribed')} />;
+  }
+
   /* ---- Render ---- */
   return (
     <main className="w-full min-h-full bg-cream font-body">
       <AnimatePresence mode="wait">
         {screen === 'landing' &&
-        <motion.div
-          key="landing"
-          className="min-h-screen pb-20"
-          initial={{
-            opacity: 0
-          }}
-          animate={{
-            opacity: 1
-          }}
-          exit={{
-            opacity: 0,
-            y: -20
-          }}
-          transition={{
-            duration: 0.3
-          }}>
-          
-            <LandingScreen onStart={handleStart} />
+          <motion.div key="landing" className="min-h-screen pb-20"
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.3 }}>
+            <LandingScreen
+                onStart={handleStart}
+                userName={user.user_metadata?.full_name?.split(' ')[0] ?? undefined}
+                sessionCount={sessions.filter((s) => s.completed).length}
+                quickLogCount={quickLogs.length}
+                onNavigateToHistory={() => handleNavigate('history')}
+                onNavigateToSaved={() => handleNavigate('saved')}
+              />
           </motion.div>
         }
 
         {screen === 'loop' &&
-        <motion.div
-          key={`loop-${stepIndex}`}
-          className="min-h-screen"
-          initial={{
-            opacity: 0
-          }}
-          animate={{
-            opacity: 1
-          }}
-          exit={{
-            opacity: 0
-          }}
-          transition={{
-            duration: 0.2
-          }}>
-          
+          <motion.div key={`loop-${stepIndex}`} className="min-h-screen"
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
             <LoopStep
-            stepIndex={stepIndex}
-            onNext={handleNextStep}
-            onGoHome={handleGoHome}
-            emotions={currentEmotions}
-            onToggleEmotion={handleToggleEmotion}
-            sensations={currentSensations}
-            onToggleSensation={handleToggleSensation}
-            onSaveTranscript={handleSaveTranscript}
-            transcripts={transcripts}
-            onSaveUnderstandResponse={setCurrentUnderstandResponse}
-            onSaveInsight={setCurrentInsight}
-            onComplete={handleComplete}
-            initialIntakeTranscript={transcripts.intake} />
-          
+              stepIndex={stepIndex}
+              onNext={handleNextStep}
+              onBack={handlePrevStep}
+              onGoHome={handleGoHome}
+              emotions={currentEmotions}
+              onToggleEmotion={handleToggleEmotion}
+              sensations={currentSensations}
+              onToggleSensation={handleToggleSensation}
+              onSaveTranscript={handleSaveTranscript}
+              transcripts={transcripts}
+              onSaveUnderstandResponse={setCurrentUnderstandResponse}
+              onSaveInsight={setCurrentInsight}
+              onComplete={handleComplete}
+              initialIntakeTranscript={transcripts.intake} />
           </motion.div>
         }
 
         {screen === 'done' &&
-        <motion.div
-          key="done"
-          className="min-h-screen"
-          initial={{
-            opacity: 0,
-            scale: 0.97
-          }}
-          animate={{
-            opacity: 1,
-            scale: 1
-          }}
-          exit={{
-            opacity: 0
-          }}
-          transition={{
-            duration: 0.3
-          }}>
-          
-            <CompletionScreen
-            onRestart={handleRestart}
-            onGoHome={handleGoHome}
-            unsnagCount={unsnagCount} />
-          
+          <motion.div key="done" className="min-h-screen"
+            initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }}>
+            <CompletionScreen onRestart={handleStart} onGoHome={handleGoHome} unsnagCount={unsnagCount} />
           </motion.div>
         }
 
         {screen === 'history' &&
-        <motion.div
-          key="history"
-          className="min-h-screen"
-          initial={{
-            opacity: 0
-          }}
-          animate={{
-            opacity: 1
-          }}
-          exit={{
-            opacity: 0
-          }}
-          transition={{
-            duration: 0.2
-          }}>
-          
+          <motion.div key="history" className="min-h-screen"
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
             <HistoryPage
-            sessions={sessions}
-            onViewSession={handleViewSession} />
-          
+                sessions={sessions}
+                onViewSession={handleViewSession}
+                onDeleteSession={handleDeleteSession}
+                onDeleteAllSessions={handleDeleteAllSessions}
+                onBack={handleGoHome}
+              />
           </motion.div>
         }
 
         {screen === 'saved' &&
-        <motion.div
-          key="saved"
-          className="min-h-screen"
-          initial={{
-            opacity: 0
-          }}
-          animate={{
-            opacity: 1
-          }}
-          exit={{
-            opacity: 0
-          }}
-          transition={{
-            duration: 0.2
-          }}>
-          
-            <SavedPage
-            quickLogs={quickLogs}
-            onStartFromSaved={(log) => handleStartFromSaved(log.note)} />
+          <motion.div key="saved" className="min-h-screen"
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
+            <SavedPage quickLogs={quickLogs} onStartFromSaved={handleStartFromSaved} onSave={handleSaveQuickLog} onBack={handleGoHome} />
           </motion.div>
         }
 
         {screen === 'session-detail' && selectedSession &&
-        <motion.div
-          key="session-detail"
-          className="min-h-screen"
-          initial={{
-            opacity: 0,
-            x: 20
-          }}
-          animate={{
-            opacity: 1,
-            x: 0
-          }}
-          exit={{
-            opacity: 0,
-            x: -20
-          }}
-          transition={{
-            duration: 0.2
-          }}>
-          
-            <SessionDetailPage
-            session={selectedSession}
-            onBack={() => setScreen('history')} />
-          
+          <motion.div key="session-detail" className="min-h-screen"
+            initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.2 }}>
+            <SessionDetailPage session={selectedSession} onBack={() => setScreen('history')} />
           </motion.div>
         }
 
         {screen === 'settings' &&
-        <motion.div
-          key="settings"
-          className="min-h-screen"
-          initial={{
-            opacity: 0
-          }}
-          animate={{
-            opacity: 1
-          }}
-          exit={{
-            opacity: 0
-          }}
-          transition={{
-            duration: 0.2
-          }}>
-          
-            <SettingsPage />
+          <motion.div key="settings" className="min-h-screen"
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
+            <SettingsPage user={user} accessStatus={accessStatus} onBack={handleGoHome} />
           </motion.div>
         }
       </AnimatePresence>
 
-      {/* Quick log FAB — only on landing */}
-      {screen === 'landing' && <QuickLogModal onSave={handleSaveQuickLog} />}
-
-      {/* Bottom nav — only on non-loop screens */}
       {showNav && <NavBar active={activeTab} onNavigate={handleNavigate} />}
-    </main>);
-
+    </main>
+  );
 }

@@ -52,8 +52,8 @@ export function EmotionChips({ selected, onToggle }: EmotionChipsProps) {
             className={`
               px-3.5 py-1.5 rounded-lg border-2 font-body text-sm font-medium cursor-pointer
               transition-colors duration-150
-              focus:outline-none focus-visible:ring-2 focus-visible:ring-mauve focus-visible:ring-offset-2 focus-visible:ring-offset-cream
-              ${isSelected ? 'border-warm-dark bg-mauve text-warm-dark shadow-chunky-sm' : 'border-warm-gray-light bg-cream-dark text-warm-dark-light'}
+              focus:outline-none focus-visible:ring-2 focus-visible:ring-tomato focus-visible:ring-offset-2 focus-visible:ring-offset-cream
+              ${isSelected ? 'border-warm-dark bg-tomato text-cream shadow-chunky-sm' : 'border-warm-gray-light bg-cream-dark text-warm-dark-light'}
             `}
             initial={{
               opacity: 0,

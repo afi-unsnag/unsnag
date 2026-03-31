@@ -16,14 +16,22 @@ export interface InsightData {
   affirmation: string;
 }
 
-const SYSTEM_PROMPT = `You help people untangle what's theirs from what isn't.
-Be direct, grounded, human. Not clinical. Not therapy-speak.
-Like a sharp friend who can see the situation clearly.
+const SYSTEM_PROMPT = `You help people get clear on what is and isn't theirs to carry.
 
-Given someone's situation, emotions, body sensations, and inner voice — give a concise breakdown:
+This is not about blame — not toward them, and not toward anyone else. No one is the villain here.
 
-"What's yours" — their patterns, their role, feelings they can actually work with.
-"What's not yours" — other people's reactions, their expectations, things outside their control.
+This is purely about accountability: what belongs to this person to look at, own, and potentially do something about — and what belongs to someone else and is not theirs to manage, fix, or take responsibility for.
+
+"What's yours to own" — their own feelings (even the uncomfortable ones), their own behaviors and reactions (especially the ones driven by wanting to avoid shame, guilt, or conflict), their own patterns. These are things they actually have agency over.
+
+"What's not yours" — other people's feelings (their disappointment, discomfort, frustration, or anger), other people's reactions and choices, other people's opinions of them. These do not belong to this person to manage or fix, no matter how much they've been conditioned to believe otherwise.
+
+Important rules:
+- Never describe, judge, or characterize another person in any way — not negatively, not positively. Other people are not the subject here. This person is.
+- No blame in either direction. Not "their guilt-tripping" or "his anger" — just "someone else's disappointment" or "another person's reaction."
+- What's theirs is not a criticism — it's an invitation to have agency. Frame it that way.
+- What's not theirs is not permission to dismiss others — it's permission to stop carrying what was never theirs to carry.
+- No therapy-speak. No "boundaries," "toxic," "trauma response," "self-care." Just plain, honest language.
 
 Return ONLY valid JSON with this exact structure and nothing else:
 {
@@ -33,7 +41,7 @@ Return ONLY valid JSON with this exact structure and nothing else:
 }
 
 Each item is a short phrase, not a sentence. Max 4 items per category.
-No therapy-speak. No "it's okay to feel..." Just be real.`;
+The affirmation should be a quiet, grounded line — not a cheer, not a pep talk. Something like "You can only work with what's actually yours." Keep it plain and real.`;
 
 function buildUserMessage(
   intakeTranscript?: string,
@@ -57,6 +65,20 @@ export function AiInsight({ onContinue, intakeTranscript, askTranscript, emotion
     let cancelled = false;
 
     (async () => {
+      if (import.meta.env.VITE_MOCK_AI === 'true') {
+        await new Promise((r) => setTimeout(r, 500));
+        if (!cancelled) {
+          const mock: InsightData = {
+            whatsYours: ['[MOCK] item one', '[MOCK] item two'],
+            whatsNotYours: ['[MOCK] item one', '[MOCK] item two'],
+            affirmation: '[MOCK] AI skipped — VITE_MOCK_AI=true',
+          };
+          setInsight(mock);
+          onSaveInsight?.(mock);
+        }
+        return;
+      }
+
       const response = await fetch('/api/anthropic/v1/messages', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -113,10 +135,10 @@ export function AiInsight({ onContinue, intakeTranscript, askTranscript, emotion
         animate={{ opacity: 1 }}
         transition={{ duration: 0.4 }}>
         <motion.h2 className="font-heading text-2xl sm:text-3xl font-bold text-warm-dark text-center mb-2">
-          Let's untangle this.
+          Let's separate what's yours from what isn't.
         </motion.h2>
-        <p className="font-body text-sm text-warm-gray text-center mb-10">
-          Looking at what's yours vs. what isn't…
+        <p className="font-body text-sm text-warm-dark-light text-center mb-10">
+          Your feelings are yours. Other people's reactions aren't.
         </p>
         <div className="flex gap-2">
           {[0, 1, 2].map((i) => (
@@ -142,7 +164,7 @@ export function AiInsight({ onContinue, intakeTranscript, askTranscript, emotion
         <h2 className="font-heading text-2xl font-bold text-warm-dark text-center mb-4">
           Couldn't load insight
         </h2>
-        <p className="font-body text-sm text-warm-gray text-center mb-8 max-w-xs">{error}</p>
+        <p className="font-body text-sm text-warm-dark-light text-center mb-8 max-w-xs">{error}</p>
         <button
           onClick={onContinue}
           className="px-8 py-3.5 rounded-xl border-[3px] border-warm-dark bg-mauve font-heading font-semibold text-base text-warm-dark shadow-chunky cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-warm-dark">
@@ -162,46 +184,42 @@ export function AiInsight({ onContinue, intakeTranscript, askTranscript, emotion
       transition={{ duration: 0.4 }}>
 
       <h2 className="font-heading text-2xl sm:text-3xl font-bold text-warm-dark text-center mb-2">
-        Let's untangle this.
+        Let's separate what's yours from what isn't.
       </h2>
-      <p className="font-body text-sm text-warm-gray text-center mb-8">
-        Here's what we're seeing.
+      <p className="font-body text-sm text-warm-dark-light text-center mb-8">
+        Your feelings are yours. Other people's reactions aren't.
       </p>
 
       <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
         <div className="rounded-xl border-2 border-tomato bg-cream p-5">
-          <h3 className="font-heading font-bold text-base text-tomato mb-3">What's yours</h3>
+          <h3 className="font-heading font-bold text-base text-tomato mb-3">What's yours to be accountable for</h3>
           <ul className="space-y-2.5">
             {(insight!.whatsYours ?? []).map((item, i) => (
               <li key={i} className="flex items-start gap-2">
                 <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-tomato flex-shrink-0" />
-                <span className="font-body text-sm text-warm-dark">{item}</span>
+                <span className="font-body text-sm text-warm-dark-light">{item}</span>
               </li>
             ))}
           </ul>
         </div>
 
-        <div className="rounded-xl border-2 border-orange bg-cream p-5">
-          <h3 className="font-heading font-bold text-base text-orange-dark mb-3">What's not yours</h3>
+        <div className="rounded-xl border-2 border-orange-dark bg-cream p-5">
+          <h3 className="font-heading font-bold text-base text-orange-dark mb-3">What's not yours to be accountable for</h3>
           <ul className="space-y-2.5">
             {(insight!.whatsNotYours ?? []).map((item, i) => (
               <li key={i} className="flex items-start gap-2">
-                <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-orange flex-shrink-0" />
-                <span className="font-body text-sm text-warm-dark">{item}</span>
+                <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-orange-dark flex-shrink-0" />
+                <span className="font-body text-sm text-warm-dark-light">{item}</span>
               </li>
             ))}
           </ul>
         </div>
       </div>
 
-      <p className="font-body text-sm text-warm-dark-light text-center mb-8 max-w-xs italic">
-        {insight!.affirmation}
-      </p>
-
       <button
         onClick={onContinue}
         className="px-8 py-3.5 rounded-xl border-[3px] border-warm-dark bg-mauve font-heading font-semibold text-base text-warm-dark shadow-chunky cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-warm-dark focus-visible:ring-offset-2 focus-visible:ring-offset-cream">
-        I see it now
+        continue
       </button>
     </motion.div>
   );
