@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import type { User } from '@supabase/supabase-js';
 import { supabase } from './lib/supabase';
@@ -40,7 +41,6 @@ interface QuickLog {
   note: string;
 }
 type NavTab = 'home' | 'history' | 'saved' | 'settings';
-type AppScreen = 'landing' | 'loop' | 'done' | 'history' | 'saved' | 'session-detail' | 'settings';
 
 /* ---- AI session summary generator ---- */
 async function generateSessionSummaries(
@@ -146,14 +146,17 @@ function rowToQuickLog(row: any): QuickLog {
 
 /* ---- App ---- */
 export function App() {
+  const navigate = useNavigate();
+  const location = useLocation();
   const [user, setUser] = useState<User | null | undefined>(undefined); // undefined = loading
   const [accessStatus, setAccessStatus] = useState<AccessStatus>('loading');
-  const [screen, setScreen] = useState<AppScreen>('landing');
   const [stepIndex, setStepIndex] = useState(0);
   const [unsnagCount, setUnsnagCount] = useState(0);
   const [sessions, setSessions] = useState<Session[]>([]);
   const [quickLogs, setQuickLogs] = useState<QuickLog[]>([]);
   const [selectedSession, setSelectedSession] = useState<Session | null>(null);
+  // In-progress loop screens (not routed — transient flow)
+  const [loopScreen, setLoopScreen] = useState<'idle' | 'loop' | 'done'>('idle');
   // Current loop state
   const [currentEmotions, setCurrentEmotions] = useState<string[]>([]);
   const [currentSensations, setCurrentSensations] = useState<string[]>([]);
@@ -249,23 +252,27 @@ export function App() {
   }, [sessions]);
 
   /* ---- Navigation ---- */
-  const showNav = screen === 'landing' || screen === 'history' || screen === 'saved' || screen === 'settings';
+  const currentPath = location.pathname;
+  const showNav = loopScreen === 'idle' && ['/', '/history', '/saved', '/settings'].some(
+    (p) => currentPath === p || (p === '/history' && currentPath.startsWith('/history/')),
+  );
   const activeTab: NavTab =
-    screen === 'history' || screen === 'session-detail' ? 'history' :
-    screen === 'saved' ? 'saved' :
-    screen === 'settings' ? 'settings' : 'home';
+    currentPath.startsWith('/history') ? 'history' :
+    currentPath === '/saved' ? 'saved' :
+    currentPath === '/settings' ? 'settings' : 'home';
 
   const handleNavigate = useCallback((tab: NavTab) => {
-    if (tab === 'home') setScreen('landing');
-    else if (tab === 'history') setScreen('history');
-    else if (tab === 'saved') setScreen('saved');
-    else if (tab === 'settings') setScreen('settings');
-  }, []);
+    setLoopScreen('idle');
+    if (tab === 'home') navigate('/');
+    else if (tab === 'history') navigate('/history');
+    else if (tab === 'saved') navigate('/saved');
+    else if (tab === 'settings') navigate('/settings');
+  }, [navigate]);
 
   const handleViewSession = useCallback((session: Session) => {
     setSelectedSession(session);
-    setScreen('session-detail');
-  }, []);
+    navigate(`/history/${session.id}`);
+  }, [navigate]);
 
   /* ---- Loop flow ---- */
   const resetLoop = useCallback(() => {
@@ -280,14 +287,14 @@ export function App() {
 
   const handleStart = useCallback(() => {
     resetLoop();
-    setScreen('loop');
+    setLoopScreen('loop');
   }, [resetLoop]);
 
   const handleStartFromSaved = useCallback((log: QuickLog) => {
     resetLoop();
     setCurrentSavedLogId(log.id);
     setTranscripts({ intake: log.note });
-    setScreen('loop');
+    setLoopScreen('loop');
   }, [resetLoop]);
 
   const handleSaveTranscript = useCallback((step: 'intake' | 'ask' | 'go', text: string) => {
@@ -327,7 +334,7 @@ export function App() {
       setCurrentSavedLogId(null);
     }
 
-    setScreen('done');
+    setLoopScreen('done');
 
     // Persist to Supabase
     if (user) {
@@ -382,7 +389,10 @@ export function App() {
     setCurrentSensations((prev) => prev.includes(sensation) ? prev.filter((s) => s !== sensation) : [...prev, sensation]);
   }, []);
 
-  const handleGoHome = useCallback(() => setScreen('landing'), []);
+  const handleGoHome = useCallback(() => {
+    setLoopScreen('idle');
+    navigate('/');
+  }, [navigate]);
 
   const handleDeleteSession = useCallback(async (id: string) => {
     setSessions((prev) => prev.filter((s) => s.id !== id));
@@ -412,96 +422,127 @@ export function App() {
     }
   }, [user]);
 
-  /* ---- Loading / Auth / Access gates ---- */
+  /* ---- Loading state ---- */
   if (user === undefined || (user && accessStatus === 'loading')) {
     return <div className="min-h-screen bg-cream" />;
   }
+
+  /* ---- Unauthenticated routes ---- */
   if (user === null) {
-    return <AuthScreen />;
+    return (
+      <Routes>
+        <Route path="/login" element={<AuthScreen initialMode="signin" />} />
+        <Route path="/signup" element={<AuthScreen initialMode="signup" />} />
+        <Route path="*" element={<Navigate to="/login" replace />} />
+      </Routes>
+    );
   }
+
+  /* ---- Paywall ---- */
   if (accessStatus === 'expired') {
     return <PaywallScreen user={user} onAccessGranted={() => setAccessStatus('subscribed')} />;
   }
 
-  /* ---- Render ---- */
+  /* ---- Authenticated app ---- */
+  // Loop/done are overlay screens on top of "/" — not separate routes
+  const renderLoopOverlay = () => {
+    if (loopScreen === 'loop') {
+      return (
+        <motion.div key={`loop-${stepIndex}`} className="min-h-screen"
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
+          <LoopStep
+            stepIndex={stepIndex}
+            onNext={handleNextStep}
+            onBack={handlePrevStep}
+            onGoHome={handleGoHome}
+            emotions={currentEmotions}
+            onToggleEmotion={handleToggleEmotion}
+            sensations={currentSensations}
+            onToggleSensation={handleToggleSensation}
+            onSaveTranscript={handleSaveTranscript}
+            transcripts={transcripts}
+            onSaveUnderstandResponse={setCurrentUnderstandResponse}
+            onSaveInsight={setCurrentInsight}
+            onComplete={handleComplete}
+            initialIntakeTranscript={transcripts.intake} />
+        </motion.div>
+      );
+    }
+    if (loopScreen === 'done') {
+      return (
+        <motion.div key="done" className="min-h-screen"
+          initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }}>
+          <CompletionScreen onRestart={handleStart} onGoHome={handleGoHome} unsnagCount={unsnagCount} />
+        </motion.div>
+      );
+    }
+    return null;
+  };
+
   return (
     <main className="w-full min-h-full bg-cream font-body">
       <AnimatePresence mode="wait">
-        {screen === 'landing' &&
-          <motion.div key="landing" className="min-h-screen pb-20"
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.3 }}>
-            <LandingScreen
-                onStart={handleStart}
-                userName={user.user_metadata?.full_name?.split(' ')[0] ?? undefined}
-                sessionCount={sessions.filter((s) => s.completed).length}
-                quickLogCount={quickLogs.length}
-                onNavigateToHistory={() => handleNavigate('history')}
-                onNavigateToSaved={() => handleNavigate('saved')}
-              />
-          </motion.div>
-        }
+        {loopScreen !== 'idle' ? renderLoopOverlay() : (
+          <Routes location={location} key={location.pathname}>
+            <Route path="/" element={
+              <motion.div key="landing" className="min-h-screen pb-20"
+                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.3 }}>
+                <LandingScreen
+                  onStart={handleStart}
+                  userName={user.user_metadata?.full_name?.split(' ')[0] ?? undefined}
+                  sessionCount={sessions.filter((s) => s.completed).length}
+                  quickLogCount={quickLogs.length}
+                  onNavigateToHistory={() => handleNavigate('history')}
+                  onNavigateToSaved={() => handleNavigate('saved')}
+                />
+              </motion.div>
+            } />
 
-        {screen === 'loop' &&
-          <motion.div key={`loop-${stepIndex}`} className="min-h-screen"
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
-            <LoopStep
-              stepIndex={stepIndex}
-              onNext={handleNextStep}
-              onBack={handlePrevStep}
-              onGoHome={handleGoHome}
-              emotions={currentEmotions}
-              onToggleEmotion={handleToggleEmotion}
-              sensations={currentSensations}
-              onToggleSensation={handleToggleSensation}
-              onSaveTranscript={handleSaveTranscript}
-              transcripts={transcripts}
-              onSaveUnderstandResponse={setCurrentUnderstandResponse}
-              onSaveInsight={setCurrentInsight}
-              onComplete={handleComplete}
-              initialIntakeTranscript={transcripts.intake} />
-          </motion.div>
-        }
+            <Route path="/history" element={
+              <motion.div key="history" className="min-h-screen"
+                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
+                <HistoryPage
+                  sessions={sessions}
+                  onViewSession={handleViewSession}
+                  onDeleteSession={handleDeleteSession}
+                  onDeleteAllSessions={handleDeleteAllSessions}
+                  onBack={handleGoHome}
+                />
+              </motion.div>
+            } />
 
-        {screen === 'done' &&
-          <motion.div key="done" className="min-h-screen"
-            initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }}>
-            <CompletionScreen onRestart={handleStart} onGoHome={handleGoHome} unsnagCount={unsnagCount} />
-          </motion.div>
-        }
+            <Route path="/history/:id" element={(() => {
+              const session = selectedSession ?? sessions.find((s) => s.id === location.pathname.split('/').pop());
+              if (!session) return <Navigate to="/history" replace />;
+              return (
+                <motion.div key="session-detail" className="min-h-screen"
+                  initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.2 }}>
+                  <SessionDetailPage
+                    session={session}
+                    onBack={() => navigate('/history')}
+                  />
+                </motion.div>
+              );
+            })()} />
 
-        {screen === 'history' &&
-          <motion.div key="history" className="min-h-screen"
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
-            <HistoryPage
-                sessions={sessions}
-                onViewSession={handleViewSession}
-                onDeleteSession={handleDeleteSession}
-                onDeleteAllSessions={handleDeleteAllSessions}
-                onBack={handleGoHome}
-              />
-          </motion.div>
-        }
+            <Route path="/saved" element={
+              <motion.div key="saved" className="min-h-screen"
+                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
+                <SavedPage quickLogs={quickLogs} onStartFromSaved={handleStartFromSaved} onSave={handleSaveQuickLog} onBack={handleGoHome} />
+              </motion.div>
+            } />
 
-        {screen === 'saved' &&
-          <motion.div key="saved" className="min-h-screen"
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
-            <SavedPage quickLogs={quickLogs} onStartFromSaved={handleStartFromSaved} onSave={handleSaveQuickLog} onBack={handleGoHome} />
-          </motion.div>
-        }
+            <Route path="/settings" element={
+              <motion.div key="settings" className="min-h-screen"
+                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
+                <SettingsPage user={user} accessStatus={accessStatus} onBack={handleGoHome} />
+              </motion.div>
+            } />
 
-        {screen === 'session-detail' && selectedSession &&
-          <motion.div key="session-detail" className="min-h-screen"
-            initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.2 }}>
-            <SessionDetailPage session={selectedSession} onBack={() => setScreen('history')} />
-          </motion.div>
-        }
-
-        {screen === 'settings' &&
-          <motion.div key="settings" className="min-h-screen"
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
-            <SettingsPage user={user} accessStatus={accessStatus} onBack={handleGoHome} />
-          </motion.div>
-        }
+            {/* Redirect unknown routes to home */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        )}
       </AnimatePresence>
 
       {showNav && <NavBar active={activeTab} onNavigate={handleNavigate} />}

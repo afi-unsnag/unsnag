@@ -1,9 +1,15 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { supabase } from '../lib/supabase';
 
-export function AuthScreen() {
-  const [mode, setMode] = useState<'signin' | 'signup'>('signin');
+interface AuthScreenProps {
+  initialMode?: 'signin' | 'signup';
+}
+
+export function AuthScreen({ initialMode = 'signin' }: AuthScreenProps) {
+  const navigate = useNavigate();
+  const [mode, setMode] = useState<'signin' | 'signup'>(initialMode);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -191,7 +197,14 @@ export function AuthScreen() {
         </form>
 
         <button
-          onClick={() => { setMode(mode === 'signin' ? 'signup' : 'signin'); setName(''); setError(null); setSuccess(null); }}
+          onClick={() => {
+            const next = mode === 'signin' ? 'signup' : 'signin';
+            setMode(next);
+            setName('');
+            setError(null);
+            setSuccess(null);
+            navigate(next === 'signin' ? '/login' : '/signup', { replace: true });
+          }}
           className="mt-6 w-full text-center font-body text-sm text-warm-dark-light hover:text-warm-dark transition-colors cursor-pointer">
           {mode === 'signin' ? "Don't have an account? Sign up" : 'Already have an account? Sign in'}
         </button>
