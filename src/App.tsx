@@ -15,6 +15,7 @@ import { HistoryPage } from './pages/HistoryPage';
 import { SavedPage } from './pages/SavedPage';
 import { SessionDetailPage } from './pages/SessionDetailPage';
 import { SettingsPage } from './pages/SettingsPage';
+import { OnboardingTour } from './components/OnboardingTour';
 
 /* ---- Data types ---- */
 interface SessionInsight {
@@ -161,6 +162,7 @@ export function App() {
   const [currentUnderstandResponse, setCurrentUnderstandResponse] = useState<string | undefined>();
   const [currentInsight, setCurrentInsight] = useState<SessionInsight | undefined>();
   const [currentSavedLogId, setCurrentSavedLogId] = useState<string | null>(null);
+  const [showOnboarding, setShowOnboarding] = useState(!localStorage.getItem('onboarding-done'));
   const summaryBackfillRan = useRef(false);
 
   /* ---- Auth ---- */
@@ -487,11 +489,16 @@ export function App() {
                 <LandingScreen
                   onStart={handleStart}
                   userName={user.user_metadata?.full_name?.split(' ')[0] ?? undefined}
-                  sessionCount={sessions.filter((s) => s.completed).length}
-                  quickLogCount={quickLogs.length}
-                  onNavigateToHistory={() => handleNavigate('history')}
-                  onNavigateToSaved={() => handleNavigate('saved')}
                 />
+                {showOnboarding && sessions.length === 0 && quickLogs.length === 0 && (
+                  <OnboardingTour
+                    userName={user.user_metadata?.full_name?.split(' ')[0] ?? undefined}
+                    onComplete={() => {
+                      localStorage.setItem('onboarding-done', '1');
+                      setShowOnboarding(false);
+                    }}
+                  />
+                )}
               </motion.div>
             } />
 

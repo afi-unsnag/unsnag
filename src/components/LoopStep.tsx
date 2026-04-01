@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { createNoticeAudio, type NoticeAudioHandle } from '../audio/noticeStepAudio';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeftIcon } from 'lucide-react';
+import { ArrowLeftIcon, XIcon } from 'lucide-react';
 import { VoiceButton } from './VoiceButton';
 import { aiMessage } from '../lib/ai';
 import { ProgressDots } from './ProgressDots';
@@ -67,6 +67,7 @@ export function LoopStep({
   initialIntakeTranscript,
 }: LoopStepProps) {
   const progressIndex = getProgressIndex(stepIndex);
+  const [showDiscard, setShowDiscard] = useState(false);
   return (
     <motion.div
       className="flex flex-col min-h-screen px-5 pt-4 pb-8"
@@ -75,7 +76,47 @@ export function LoopStep({
       exit={{ opacity: 0, x: -50 }}
       transition={{ type: 'spring', stiffness: 300, damping: 28 }}>
 
-      {/* Top bar: home button + progress */}
+      {/* Discard confirmation */}
+      <AnimatePresence>
+        {showDiscard && (
+          <>
+            <motion.div
+              className="fixed inset-0 z-50 bg-warm-dark/40"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowDiscard(false)}
+            />
+            <motion.div
+              className="fixed inset-x-4 top-1/2 -translate-y-1/2 z-50 max-w-sm mx-auto bg-cream border-[3px] border-warm-dark rounded-2xl p-6 shadow-chunky"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+            >
+              <h3 className="font-heading text-lg font-bold text-warm-dark mb-2">Are you sure?</h3>
+              <p className="font-body text-sm text-warm-dark-light mb-5">This will discard your current session.</p>
+              <div className="flex gap-3 justify-end">
+                <button
+                  onClick={() => setShowDiscard(false)}
+                  className="px-4 py-2 rounded-lg border-2 border-warm-gray-light font-heading font-semibold text-sm text-warm-dark-light cursor-pointer hover:border-warm-dark transition-colors"
+                >
+                  Keep going
+                </button>
+                <motion.button
+                  onClick={onGoHome}
+                  className="px-4 py-2 rounded-lg border-2 border-warm-dark bg-tomato font-heading font-semibold text-sm text-cream cursor-pointer shadow-chunky-sm"
+                  whileTap={{ scale: 0.96, y: 1 }}
+                >
+                  Discard
+                </motion.button>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* Top bar: back button + progress + close button */}
       <div className="flex items-center justify-between mb-6">
         <motion.button
           onClick={stepIndex === 0 ? onGoHome : onBack}
@@ -95,8 +136,18 @@ export function LoopStep({
           : <div />
         }
 
-        {/* Spacer to balance the home button */}
-        <div className="w-9" />
+        <motion.button
+          onClick={() => setShowDiscard(true)}
+          className="
+            w-9 h-9 rounded-lg border-2 border-warm-gray-light bg-cream-dark
+            flex items-center justify-center cursor-pointer
+            hover:border-warm-dark hover:shadow-chunky-sm transition-all duration-150
+            focus:outline-none focus-visible:ring-2 focus-visible:ring-mauve focus-visible:ring-offset-2 focus-visible:ring-offset-cream
+          "
+          whileTap={{ scale: 0.92, y: 1 }}
+          aria-label="Close session">
+          <XIcon className="w-4 h-4 text-warm-dark-light" strokeWidth={2.5} />
+        </motion.button>
       </div>
 
       {/* Step content */}

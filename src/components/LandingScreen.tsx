@@ -3,21 +3,13 @@ import { motion } from 'framer-motion';
 interface LandingScreenProps {
   onStart: () => void;
   userName?: string;
-  sessionCount?: number;
-  quickLogCount?: number;
-  onNavigateToHistory?: () => void;
-  onNavigateToSaved?: () => void;
 }
 
 export function LandingScreen({
   onStart,
   userName,
-  sessionCount = 0,
-  quickLogCount = 0,
-  onNavigateToHistory,
-  onNavigateToSaved,
 }: LandingScreenProps) {
-  const greeting = userName ? `👋 Hey, ${userName}!` : '👋 Hey!';
+  const greeting = userName ? `\u{1F44B} Hey, ${userName}!` : '\u{1F44B} Hey!';
 
   return (
     <motion.div
@@ -64,6 +56,7 @@ export function LandingScreen({
       {/* CTA */}
       <motion.button
         onClick={onStart}
+        data-tour="cta-button"
         className="
           w-full max-w-sm py-5 rounded-xl
           border-[3px] border-warm-dark bg-mauve
@@ -81,33 +74,6 @@ export function LandingScreen({
       >
         Let's move through it
       </motion.button>
-
-      {/* Stat cards */}
-      <motion.div
-        className="w-full max-w-sm flex gap-3 -mt-2"
-        variants={{
-          hidden: { opacity: 0, y: 16 },
-          visible: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 280, damping: 22 } },
-        }}
-      >
-        {/* Unsnags — taps to history */}
-        <button
-          onClick={onNavigateToHistory}
-          className="flex-1 rounded-xl border-[3px] border-warm-dark bg-tomato/80 py-3 flex flex-col items-center gap-0.5 cursor-pointer hover:bg-tomato transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-warm-dark"
-        >
-          <span className="font-heading text-2xl font-bold text-warm-dark leading-none">{sessionCount}</span>
-          <span className="font-body text-xs text-warm-dark/70">unsnags</span>
-        </button>
-
-        {/* For later — taps to saved */}
-        <button
-          onClick={onNavigateToSaved}
-          className="flex-1 rounded-xl border-[3px] border-warm-dark bg-orange-dark/80 py-3 flex flex-col items-center gap-0.5 cursor-pointer hover:bg-orange-dark transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-warm-dark"
-        >
-          <span className="font-heading text-2xl font-bold text-warm-dark leading-none">{quickLogCount}</span>
-          <span className="font-body text-xs text-warm-dark/60">for later</span>
-        </button>
-      </motion.div>
 
       {/* Footnote */}
       <motion.p

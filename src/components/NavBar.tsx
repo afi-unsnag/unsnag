@@ -17,25 +17,29 @@ export function NavBar({ active, onNavigate }: NavBarProps) {
           icon={<HomeIcon className="w-5 h-5" strokeWidth={2.5} />}
           label="Home"
           isActive={active === 'home'}
-          onClick={() => onNavigate('home')} />
-        
+          onClick={() => onNavigate('home')}
+          tourId="nav-home" />
+
         <NavItem
           icon={<ClockIcon className="w-5 h-5" strokeWidth={2.5} />}
           label="History"
           isActive={active === 'history'}
-          onClick={() => onNavigate('history')} />
-        
+          onClick={() => onNavigate('history')}
+          tourId="nav-history" />
+
         <NavItem
           icon={<BookmarkIcon className="w-5 h-5" strokeWidth={2.5} />}
           label="Saved"
           isActive={active === 'saved'}
-          onClick={() => onNavigate('saved')} />
-        
+          onClick={() => onNavigate('saved')}
+          tourId="nav-saved" />
+
         <NavItem
           icon={<SettingsIcon className="w-5 h-5" strokeWidth={2.5} />}
           label="Settings"
           isActive={active === 'settings'}
-          onClick={() => onNavigate('settings')} />
+          onClick={() => onNavigate('settings')}
+          tourId="nav-settings" />
         
       </div>
     </nav>);
@@ -45,16 +49,14 @@ function NavItem({
   icon,
   label,
   isActive,
-  onClick
+  onClick,
+  tourId,
 
-
-
-
-
-}: {icon: React.ReactNode;label: string;isActive: boolean;onClick: () => void;}) {
+}: {icon: React.ReactNode;label: string;isActive: boolean;onClick: () => void;tourId?: string;}) {
   return (
     <button
       onClick={onClick}
+      data-tour={tourId}
       className={`
         flex flex-col items-center gap-0.5 px-4 py-1 cursor-pointer
         transition-colors duration-150 rounded-lg
