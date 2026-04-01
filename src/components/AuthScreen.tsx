@@ -86,7 +86,7 @@ export function AuthScreen({ initialMode = 'signin' }: AuthScreenProps) {
                   value={forgotEmail}
                   onChange={(e) => setForgotEmail(e.target.value)}
                   required
-                  className="w-full p-3.5 rounded-xl border-2 border-warm-gray-light bg-cream-dark font-body text-sm text-warm-dark-light placeholder:text-warm-gray focus:border-warm-dark focus:outline-none transition-colors"
+                  className="w-full p-3.5 rounded-xl border-2 border-warm-gray-light bg-cream-dark font-body text-base text-warm-dark-light placeholder:text-warm-gray focus:border-warm-dark focus:outline-none transition-colors"
                   placeholder="you@example.com"
                 />
               </div>
@@ -135,7 +135,7 @@ export function AuthScreen({ initialMode = 'signin' }: AuthScreenProps) {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
-                className="w-full p-3.5 rounded-xl border-2 border-warm-gray-light bg-cream-dark font-body text-sm text-warm-dark-light placeholder:text-warm-gray focus:border-warm-dark focus:outline-none transition-colors"
+                className="w-full p-3.5 rounded-xl border-2 border-warm-gray-light bg-cream-dark font-body text-base text-warm-dark-light placeholder:text-warm-gray focus:border-warm-dark focus:outline-none transition-colors"
                 placeholder="Your name"
               />
             </div>
@@ -149,7 +149,7 @@ export function AuthScreen({ initialMode = 'signin' }: AuthScreenProps) {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full p-3.5 rounded-xl border-2 border-warm-gray-light bg-cream-dark font-body text-sm text-warm-dark-light placeholder:text-warm-gray focus:border-warm-dark focus:outline-none transition-colors"
+              className="w-full p-3.5 rounded-xl border-2 border-warm-gray-light bg-cream-dark font-body text-base text-warm-dark-light placeholder:text-warm-gray focus:border-warm-dark focus:outline-none transition-colors"
               placeholder="you@example.com"
             />
           </div>
@@ -164,7 +164,7 @@ export function AuthScreen({ initialMode = 'signin' }: AuthScreenProps) {
               onChange={(e) => setPassword(e.target.value)}
               required
               minLength={6}
-              className="w-full p-3.5 rounded-xl border-2 border-warm-gray-light bg-cream-dark font-body text-sm text-warm-dark-light placeholder:text-warm-gray focus:border-warm-dark focus:outline-none transition-colors"
+              className="w-full p-3.5 rounded-xl border-2 border-warm-gray-light bg-cream-dark font-body text-base text-warm-dark-light placeholder:text-warm-gray focus:border-warm-dark focus:outline-none transition-colors"
               placeholder="••••••••"
             />
           </div>

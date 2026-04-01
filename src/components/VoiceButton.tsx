@@ -120,7 +120,7 @@ export function VoiceButton({ onComplete, initialText = '' }: VoiceButtonProps) 
           }
           rows={5}
           className={`
-            w-full rounded-xl bg-transparent font-body text-sm text-warm-dark-light
+            w-full rounded-xl bg-transparent font-body text-base text-warm-dark-light
             placeholder:text-warm-gray resize-none transition-colors
             focus:outline-none focus:ring-0
             ${speechAvailable ? 'p-3 pr-[3.25rem] pb-14' : 'p-3'}

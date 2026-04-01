@@ -42,7 +42,7 @@ export function QuickLogModal({ isOpen, onClose, onSave }: QuickLogModalProps) {
             className="
               fixed bottom-0 left-0 right-0 z-50
               bg-cream border-t-[3px] border-l-[3px] border-r-[3px] border-warm-dark
-              rounded-t-2xl p-6 pb-12
+              rounded-t-2xl p-6 pb-24
               max-w-lg mx-auto
             "
             initial={{ y: '100%' }}
@@ -72,7 +72,7 @@ export function QuickLogModal({ isOpen, onClose, onSave }: QuickLogModalProps) {
               placeholder="what happened…"
               className="
                 w-full p-3.5 rounded-lg border-2 border-warm-gray-light bg-cream-dark
-                font-body text-sm text-warm-dark-light placeholder:text-warm-gray
+                font-body text-base text-warm-dark-light placeholder:text-warm-gray
                 resize-none focus:border-warm-dark transition-colors
               "
               rows={4}
