@@ -162,14 +162,20 @@ export function App() {
   const [currentUnderstandResponse, setCurrentUnderstandResponse] = useState<string | undefined>();
   const [currentInsight, setCurrentInsight] = useState<SessionInsight | undefined>();
   const [currentSavedLogId, setCurrentSavedLogId] = useState<string | null>(null);
-  const [showOnboarding, setShowOnboarding] = useState(!localStorage.getItem('onboarding-done'));
+  const [showOnboarding, setShowOnboarding] = useState(false);
   const summaryBackfillRan = useRef(false);
 
   /* ---- Auth ---- */
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => setUser(data.session?.user ?? null));
+    supabase.auth.getSession().then(({ data }) => {
+      const u = data.session?.user ?? null;
+      setUser(u);
+      if (u) setShowOnboarding(!localStorage.getItem(`onboarding-done-${u.id}`));
+    });
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
+      const u = session?.user ?? null;
+      setUser(u);
+      if (u) setShowOnboarding(!localStorage.getItem(`onboarding-done-${u.id}`));
     });
     return () => subscription.unsubscribe();
   }, []);
@@ -494,7 +500,7 @@ export function App() {
                   <OnboardingTour
                     userName={user.user_metadata?.full_name?.split(' ')[0] ?? undefined}
                     onComplete={() => {
-                      localStorage.setItem('onboarding-done', '1');
+                      localStorage.setItem(`onboarding-done-${user.id}`, '1');
                       setShowOnboarding(false);
                     }}
                   />
