@@ -118,10 +118,9 @@ export function OnboardingTour({ onComplete, userName }: OnboardingTourProps) {
       }
     };
 
-    const timer = setTimeout(measure, 50);
+    measure();
     window.addEventListener('resize', measure);
     return () => {
-      clearTimeout(timer);
       window.removeEventListener('resize', measure);
     };
   }, [current.tourTarget, current.mode]);
@@ -217,10 +216,10 @@ export function OnboardingTour({ onComplete, userName }: OnboardingTourProps) {
           key={step}
           className="absolute max-w-sm mx-auto"
           style={getTooltipStyle()}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -10 }}
-          transition={{ type: 'spring', stiffness: 350, damping: 28 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.15 }}
         >
           <div className="relative bg-cream border-[3px] border-warm-dark rounded-2xl p-5 shadow-chunky">
             <h3 className="font-heading text-lg font-bold text-warm-dark mb-2">
