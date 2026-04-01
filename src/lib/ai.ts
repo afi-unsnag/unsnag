@@ -1,5 +1,3 @@
-import { supabase } from './supabase';
-
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string;
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
 
@@ -23,15 +21,11 @@ export async function aiMessage(body: {
   }
 
   // In production, call the Supabase edge function
-  const { data: { session } } = await supabase.auth.getSession();
-  const token = session?.access_token;
-  if (!token) throw new Error('Not authenticated — please sign in again.');
-
   return fetch(`${SUPABASE_URL}/functions/v1/ai-message`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`,
+      'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
       'apikey': SUPABASE_ANON_KEY,
     },
     body: JSON.stringify(body),
