@@ -7,7 +7,6 @@ interface SensationChipsProps {
 const SENSATIONS = [
 'lump in throat',
 'tight chest',
-'heavy arms',
 'jittery',
 'stomach knot',
 'clenched jaw',
@@ -15,25 +14,14 @@ const SENSATIONS = [
 'numb',
 'racing heart',
 'tingling',
-'headache',
-'shaky hands',
 'hot face',
-'cold hands',
 'tight shoulders',
 'pit in stomach',
 'dizzy',
-'heavy legs',
-'dry mouth',
 'sweaty palms',
 'pressure in head',
-'tight back',
 "can't sit still",
 'exhausted',
-'floaty',
-'buzzing skin',
-'heavy eyelids',
-'sore throat',
-'wobbly knees',
 'chest flutter'];
 
 export function SensationChips({ selected, onToggle }: SensationChipsProps) {

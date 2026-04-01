@@ -308,10 +308,12 @@ export function App() {
 
   const handleNextStep = useCallback(() => {
     setStepIndex((s) => s + 1);
+    window.scrollTo(0, 0);
   }, []);
 
   const handlePrevStep = useCallback(() => {
     setStepIndex((s) => Math.max(0, s - 1));
+    window.scrollTo(0, 0);
   }, []);
 
   const handleComplete = useCallback(async (goTranscript: string) => {

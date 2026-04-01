@@ -17,24 +17,15 @@ const EMOTIONS = [
 'scared',
 'lonely',
 'jealous',
-'hopeless',
-'irritated',
 'insecure',
 'resentful',
 'panicked',
 'disappointed',
-'embarrassed',
 'helpless',
 'rejected',
 'stuck',
 'drained',
-'defensive',
-'lost',
-'bitter',
-'invisible',
-'restless',
-'hollow',
-'suffocated'];
+'invisible'];
 
 export function EmotionChips({ selected, onToggle }: EmotionChipsProps) {
   return (
