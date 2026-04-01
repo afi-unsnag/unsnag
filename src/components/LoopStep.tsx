@@ -269,8 +269,9 @@ function UnderstandStep({ onNext, transcript, onSaveResponse }: { onNext: () => 
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
+    <div className="flex flex-col items-center w-full">
+      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-mauve-light border border-mauve-dark text-[9px] font-body font-semibold text-warm-dark uppercase tracking-widest mb-3">✦ AI</span>
     <StepShell prompt="Of course this is hard.">
-      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-mauve-light border border-mauve-dark text-[9px] font-body font-semibold text-warm-dark uppercase tracking-widest mb-4">✦ AI</span>
       {!response && !error &&
         <motion.div
           className="flex gap-2 mb-8"
@@ -309,6 +310,7 @@ function UnderstandStep({ onNext, transcript, onSaveResponse }: { onNext: () => 
 
       {(response || error) && <ContinueButton onClick={onNext} delay={0.1} />}
     </StepShell>
+    </div>
   );
 }
 
@@ -322,7 +324,7 @@ function NameStep({ emotions, onToggle, onNext }: { emotions: string[]; onToggle
       label="name"
       prompt="What are you feeling right now?"
       subtext="Naming it actually turns the volume down.">
-      <p className="font-body text-xs text-warm-dark-light text-center mb-4">Tap anything that fits. No wrong answers.</p>
+      <p className="font-body text-xs text-warm-dark-light text-center mb-4">Tap anything that fits.</p>
       <EmotionChips selected={emotions} onToggle={onToggle} />
       {hasSelection && <ContinueButton onClick={onNext} delay={0} />}
     </StepShell>
@@ -338,8 +340,8 @@ function SensationStep({ sensations, onToggle, onNext }: { sensations: string[];
     <StepShell
       label="sensation"
       prompt="Where are you feeling this?"
-      subtext="Feelings live in the body, even when we ignore them. Finding it is what lets it move.">
-      <p className="font-body text-xs text-warm-dark-light text-center mb-4">Tap anything that fits. No wrong answers.</p>
+      subtext="Feelings live in the body. Finding it is what lets it move.">
+      <p className="font-body text-xs text-warm-dark-light text-center mb-4">Tap anything that fits.</p>
       <SensationChips selected={sensations} onToggle={onToggle} />
       {hasSelection && <ContinueButton onClick={onNext} delay={0} />}
     </StepShell>
@@ -415,7 +417,7 @@ function NoticeStep({ onNext }: { onNext: () => void }) {
     <StepShell
       label="notice"
       prompt="Just feel it. Don't fix it."
-      subtext="Science says a feeling fully felt lasts about 90 seconds. That's all we're asking for."
+      subtext="A feeling fully felt lasts about 90 seconds. That's all this is."
     >
       <div className="flex w-full max-w-xs flex-col items-center gap-4">
         <div
@@ -487,7 +489,7 @@ function NoticeStep({ onNext }: { onNext: () => void }) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.15 }}
           >
-            Focus on what you just named. Imagine pulling up a chair and giving it a seat. Let it be here. Don't analyze it, don't explain it — just let it stay.
+            Focus on what you just named. Let it be here. Don't analyze it, don't explain it — just let it stay.
           </motion.p>
         )}
 
@@ -549,7 +551,7 @@ function NoticeStep({ onNext }: { onNext: () => void }) {
               animate={{ opacity: 1 }}
               transition={{ duration: 0.35 }}
             >
-              {DEV_INSTANT_SKIP ? 'Skip timer (testing)' : "Skip rest — I'm ready"}
+              {DEV_INSTANT_SKIP ? 'Skip timer (testing)' : "Skip the rest — I'm ready"}
             </motion.button>
           )}
         </AnimatePresence>
@@ -587,7 +589,7 @@ function GoStep({ onNext }: { onNext: (transcript: string) => void; }) {
     <StepShell
       label="go"
       prompt="What's one small thing you can do differently now?"
-      subtext="Normally you would have reacted a certain way. What's available to you now that wasn't before?">
+      subtext="Before this, you would've spiraled, gone quiet, or taken it on. What's available to you now that wasn't before?">
       <VoiceButton onComplete={onNext} />
     </StepShell>
   );

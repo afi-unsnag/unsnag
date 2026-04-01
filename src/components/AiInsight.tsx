@@ -191,7 +191,7 @@ export function AiInsight({ onContinue, intakeTranscript, askTranscript, emotion
 
       <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
         <div className="rounded-xl border-2 border-tomato bg-cream p-5">
-          <h3 className="font-heading font-bold text-base text-tomato mb-3">What's yours to be accountable for</h3>
+          <h3 className="font-heading font-bold text-base text-tomato mb-3">What's yours</h3>
           <ul className="space-y-2.5">
             {(insight!.whatsYours ?? []).map((item, i) => (
               <li key={i} className="flex items-start gap-2">
@@ -203,7 +203,7 @@ export function AiInsight({ onContinue, intakeTranscript, askTranscript, emotion
         </div>
 
         <div className="rounded-xl border-2 border-orange-dark bg-cream p-5">
-          <h3 className="font-heading font-bold text-base text-orange-dark mb-3">What's not yours to be accountable for</h3>
+          <h3 className="font-heading font-bold text-base text-orange-dark mb-3">What's not yours</h3>
           <ul className="space-y-2.5">
             {(insight!.whatsNotYours ?? []).map((item, i) => (
               <li key={i} className="flex items-start gap-2">

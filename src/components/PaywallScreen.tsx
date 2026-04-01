@@ -68,7 +68,7 @@ export function PaywallScreen({ user, onAccessGranted }: PaywallScreenProps) {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2, type: 'spring', stiffness: 300, damping: 22 }}
       >
-        Your free trial has ended.
+        Your trial is up.
       </motion.h1>
 
       <motion.p
@@ -77,7 +77,7 @@ export function PaywallScreen({ user, onAccessGranted }: PaywallScreenProps) {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
       >
-        If Unsnag has helped, keep going for $5/month.
+        Keep going. $5/month. Cancel anytime.
       </motion.p>
 
       {/* Pricing card */}
@@ -90,7 +90,7 @@ export function PaywallScreen({ user, onAccessGranted }: PaywallScreenProps) {
         <p className="font-heading text-4xl font-bold text-warm-dark mb-0.5">$5</p>
         <p className="font-body text-sm text-warm-dark-light mb-4">per month · cancel anytime</p>
         <div className="space-y-2 text-left">
-          {['Unlimited sessions', 'AI-powered insight', 'Full session history'].map((f) => (
+          {['Unlimited sessions', 'Yours vs. not yours — every session', 'Full session history'].map((f) => (
             <div key={f} className="flex items-center gap-2">
               <span className="w-1.5 h-1.5 rounded-full bg-mauve-dark flex-shrink-0" />
               <span className="font-body text-sm text-warm-dark-light">{f}</span>

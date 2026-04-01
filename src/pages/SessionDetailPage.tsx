@@ -151,7 +151,7 @@ export function SessionDetailPage({ session, onBack }: SessionDetailPageProps) {
                   <div className="space-y-3">
                     <div className="grid grid-cols-2 gap-3">
                       <div className="rounded-xl border-2 border-tomato bg-cream p-4">
-                        <p className="font-heading font-bold text-xs text-tomato mb-2">What's yours to be accountable for</p>
+                        <p className="font-heading font-bold text-xs text-tomato mb-2">What's yours</p>
                         <ul className="space-y-1.5">
                           {session.insight.whatsYours.map((item, i) => (
                             <li key={i} className="flex items-start gap-1.5">
@@ -162,7 +162,7 @@ export function SessionDetailPage({ session, onBack }: SessionDetailPageProps) {
                         </ul>
                       </div>
                       <div className="rounded-xl border-2 border-orange bg-cream p-4">
-                        <p className="font-heading font-bold text-xs text-orange-dark mb-2">What's not yours to be accountable for</p>
+                        <p className="font-heading font-bold text-xs text-orange-dark mb-2">What's not yours</p>
                         <ul className="space-y-1.5">
                           {session.insight.whatsNotYours.map((item, i) => (
                             <li key={i} className="flex items-start gap-1.5">

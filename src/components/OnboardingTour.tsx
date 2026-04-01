@@ -9,25 +9,25 @@ interface OnboardingTourProps {
 const tourSteps = [
   {
     title: 'Welcome to Unsnag',
-    body: "This is a place to process what's stuck — not fix it, not analyze it, just move through it. It takes about 5 minutes and there's no homework after.",
+    body: "This is where you move through what's stuck — not fix it, not analyze it, just feel it. Takes about 5–8 minutes. No homework after.",
     tourTarget: null,
     mode: 'overlay' as const,
   },
   {
     title: 'Start here',
-    body: "When something's looping in your head — a fight, a worry, something you can't shake — tap this button. You'll talk or type about what's going on, and we'll walk you through a short guided reset.",
+    body: "When something's looping in your head — a fight, a worry, something you can't shake — tap this button. You'll talk or type about what's going on, and we'll walk you through it.",
     tourTarget: 'cta-button',
     mode: 'elevate' as const,
   },
   {
     title: 'Your history',
-    body: "Every session you complete gets saved here. You can look back at what you've processed over time.",
+    body: "Every session saves here. Over time you'll see the same triggers showing up differently — that's the pattern losing its grip.",
     tourTarget: 'nav-history',
     mode: 'spotlight' as const,
   },
   {
     title: 'Saved for later',
-    body: "Not ready to deal with something right now? Save a quick note here and come back to it when you are.",
+    body: "Something came up but the timing's wrong? Save it here. Come back when you have a few minutes.",
     tourTarget: 'nav-saved',
     mode: 'spotlight' as const,
   },
@@ -39,7 +39,7 @@ const tourSteps = [
   },
   {
     title: "That's it — you're ready to go.",
-    body: "Next time something's stuck in your head, just open Unsnag and tap the button. We'll take it from there.",
+    body: "Next time something's stuck in your head, open Unsnag and tap the button. You'll know what to do.",
     tourTarget: null,
     mode: 'overlay' as const,
   },

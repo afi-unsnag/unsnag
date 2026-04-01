@@ -60,7 +60,7 @@ export function QuickLogModal({ isOpen, onClose, onSave }: QuickLogModalProps) {
             </button>
 
             <h3 className="font-heading text-xl font-bold text-warm-dark mb-1">
-              Hit a snag?
+              Save this for later
             </h3>
             <p className="font-body text-sm text-warm-dark-light mb-5">
               Save it for when you're ready.
