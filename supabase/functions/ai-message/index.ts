@@ -13,7 +13,11 @@ Deno.serve(async (req) => {
   try {
     // Authenticate the user
     const authHeader = req.headers.get('Authorization');
-    if (!authHeader) return new Response('Unauthorized', { status: 401 });
+    if (!authHeader) {
+      return new Response(JSON.stringify({ error: { message: 'Missing Authorization header' } }), {
+        status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
 
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL')!,
@@ -22,7 +26,11 @@ Deno.serve(async (req) => {
     );
 
     const { data: { user }, error: userError } = await supabase.auth.getUser();
-    if (userError || !user) return new Response('Unauthorized', { status: 401 });
+    if (userError || !user) {
+      return new Response(JSON.stringify({ error: { message: userError?.message ?? 'Invalid session' } }), {
+        status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
 
     // Forward the request to Anthropic
     const body = await req.json();
