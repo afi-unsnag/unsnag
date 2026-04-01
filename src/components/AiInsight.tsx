@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
+import { aiMessage } from '../lib/ai';
 
 interface AiInsightProps {
   onContinue: () => void;
@@ -79,20 +80,16 @@ export function AiInsight({ onContinue, intakeTranscript, askTranscript, emotion
         return;
       }
 
-      const response = await fetch('/api/anthropic/v1/messages', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          model: 'claude-sonnet-4-6',
-          max_tokens: 1024,
-          system: SYSTEM_PROMPT,
-          messages: [
-            {
-              role: 'user',
-              content: buildUserMessage(intakeTranscript, askTranscript, emotions, sensations),
-            },
-          ],
-        }),
+      const response = await aiMessage({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 1024,
+        system: SYSTEM_PROMPT,
+        messages: [
+          {
+            role: 'user',
+            content: buildUserMessage(intakeTranscript, askTranscript, emotions, sensations),
+          },
+        ],
       });
 
       if (!response.ok) {

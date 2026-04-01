@@ -3,6 +3,7 @@ import { createNoticeAudio, type NoticeAudioHandle } from '../audio/noticeStepAu
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeftIcon } from 'lucide-react';
 import { VoiceButton } from './VoiceButton';
+import { aiMessage } from '../lib/ai';
 import { ProgressDots } from './ProgressDots';
 import { EmotionChips } from './EmotionChips';
 import { SensationChips } from './SensationChips';
@@ -185,20 +186,16 @@ function UnderstandStep({ onNext, transcript, onSaveResponse }: { onNext: () => 
         return;
       }
 
-      const res = await fetch('/api/anthropic/v1/messages', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          model: 'claude-sonnet-4-6',
-          max_tokens: 150,
-          system: UNDERSTAND_SYSTEM_PROMPT,
-          messages: [{
-            role: 'user',
-            content: transcript
-              ? `Here's what they shared: "${transcript}"`
-              : 'They didn\'t share details — give a grounded, general validation.',
-          }],
-        }),
+      const res = await aiMessage({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 150,
+        system: UNDERSTAND_SYSTEM_PROMPT,
+        messages: [{
+          role: 'user',
+          content: transcript
+            ? `Here's what they shared: "${transcript}"`
+            : 'They didn\'t share details — give a grounded, general validation.',
+        }],
       });
 
       if (!res.ok) throw new Error(`API error ${res.status}`);

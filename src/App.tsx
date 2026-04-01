@@ -3,6 +3,7 @@ import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-
 import { AnimatePresence, motion } from 'framer-motion';
 import type { User } from '@supabase/supabase-js';
 import { supabase } from './lib/supabase';
+import { aiMessage } from './lib/ai';
 import { checkAccessStatus, type AccessStatus } from './lib/subscription';
 import { AuthScreen } from './components/AuthScreen';
 import { PaywallScreen } from './components/PaywallScreen';
@@ -52,15 +53,11 @@ async function generateSessionSummaries(
   if (!intakeTranscript && !goTranscript) return null;
   try {
     const call = (system: string, content: string) =>
-      fetch('/api/anthropic/v1/messages', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          model: 'claude-haiku-4-5-20251001',
-          max_tokens: 40,
-          system,
-          messages: [{ role: 'user', content }],
-        }),
+      aiMessage({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 40,
+        system,
+        messages: [{ role: 'user', content }],
       }).then((r) => r.json() as Promise<{ content: Array<{ type: string; text?: string }> }>);
 
     const [titleData, takeawayData] = await Promise.all([
