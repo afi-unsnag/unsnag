@@ -270,6 +270,7 @@ function UnderstandStep({ onNext, transcript, onSaveResponse }: { onNext: () => 
 
   return (
     <StepShell prompt="Of course this is hard.">
+      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-mauve-light border border-mauve-dark text-[9px] font-body font-semibold text-warm-dark uppercase tracking-widest mb-4">✦ AI</span>
       {!response && !error &&
         <motion.div
           className="flex gap-2 mb-8"

@@ -131,6 +131,7 @@ export function AiInsight({ onContinue, intakeTranscript, askTranscript, emotion
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.4 }}>
+        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-mauve-light border border-mauve-dark text-[9px] font-body font-semibold text-warm-dark uppercase tracking-widest mb-3">✦ AI</span>
         <motion.h2 className="font-heading text-2xl sm:text-3xl font-bold text-warm-dark text-center mb-2">
           Let's separate what's yours from what isn't.
         </motion.h2>
@@ -180,6 +181,7 @@ export function AiInsight({ onContinue, intakeTranscript, askTranscript, emotion
       animate={{ opacity: 1 }}
       transition={{ duration: 0.4 }}>
 
+      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-mauve-light border border-mauve-dark text-[9px] font-body font-semibold text-warm-dark uppercase tracking-widest mb-3">✦ AI</span>
       <h2 className="font-heading text-2xl sm:text-3xl font-bold text-warm-dark text-center mb-2">
         Let's separate what's yours from what isn't.
       </h2>
