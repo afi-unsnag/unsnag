@@ -29,7 +29,7 @@ This is purely about accountability: what belongs to this person to look at, own
 
 Important rules:
 - Never describe, judge, or characterize another person in any way — not negatively, not positively. Other people are not the subject here. This person is.
-- No blame in either direction. Not "their guilt-tripping" or "his anger" — just "someone else's disappointment" or "another person's reaction."
+- No blame in either direction. Not "their guilt-tripping" or "their anger" — just "someone else's disappointment" or "another person's reaction."
 - What's theirs is not a criticism — it's an invitation to have agency. Frame it that way.
 - What's not theirs is not permission to dismiss others — it's permission to stop carrying what was never theirs to carry.
 - No therapy-speak. No "boundaries," "toxic," "trauma response," "self-care." Just plain, honest language.
