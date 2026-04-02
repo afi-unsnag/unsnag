@@ -59,7 +59,7 @@ export function PaywallScreen({ user, onAccessGranted }: PaywallScreenProps) {
         animate={{ scale: 1 }}
         transition={{ type: 'spring', stiffness: 400, damping: 14, delay: 0.1 }}
       >
-        <span className="text-3xl">🔒</span>
+        <span className="text-3xl">🫶</span>
       </motion.div>
 
       <motion.h1
@@ -68,7 +68,7 @@ export function PaywallScreen({ user, onAccessGranted }: PaywallScreenProps) {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2, type: 'spring', stiffness: 300, damping: 22 }}
       >
-        Your trial is up.
+        You've been showing up for yourself.
       </motion.h1>
 
       <motion.p
@@ -121,15 +121,43 @@ export function PaywallScreen({ user, onAccessGranted }: PaywallScreenProps) {
         {loading ? 'Redirecting to Stripe…' : 'Subscribe — $5/month'}
       </motion.button>
 
-      <motion.button
-        onClick={handleSignOut}
-        className="mt-5 font-body text-xs text-warm-dark-light underline underline-offset-2 decoration-warm-gray-light cursor-pointer hover:text-warm-dark transition-colors"
+      <motion.p
+        className="font-body text-sm text-warm-dark-light italic max-w-xs leading-relaxed mt-6 mb-2"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.55 }}
+      >
+        "When I'm in the middle of strong feelings, I don't need something open-ended. I need a process. Unsnag gave me that."
+      </motion.p>
+      <motion.p
+        className="font-body text-xs text-warm-gray mb-6"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.6 }}
       >
-        sign out
-      </motion.button>
+        — LW
+      </motion.p>
+
+      <div className="flex items-center gap-4 mt-2">
+        <motion.button
+          onClick={onAccessGranted}
+          className="font-body text-xs text-warm-dark-light underline underline-offset-2 decoration-warm-gray-light cursor-pointer hover:text-warm-dark transition-colors"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.65 }}
+        >
+          remind me later
+        </motion.button>
+        <motion.button
+          onClick={handleSignOut}
+          className="font-body text-xs text-warm-dark-light underline underline-offset-2 decoration-warm-gray-light cursor-pointer hover:text-warm-dark transition-colors"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.7 }}
+        >
+          sign out
+        </motion.button>
+      </div>
     </motion.div>
   );
 }
