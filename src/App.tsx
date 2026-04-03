@@ -167,15 +167,31 @@ export function App() {
 
   /* ---- Auth ---- */
   useEffect(() => {
+    const checkOnboarding = async (u: User) => {
+      const localDone = localStorage.getItem(`onboarding-done-${u.id}`);
+      if (localDone) {
+        // Migrate old localStorage flag to database
+        await supabase.from('profiles').update({ onboarding_done: true }).eq('id', u.id);
+        setShowOnboarding(false);
+      } else {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('onboarding_done')
+          .eq('id', u.id)
+          .single();
+        setShowOnboarding(!profile?.onboarding_done);
+      }
+    };
+
     supabase.auth.getSession().then(({ data }) => {
       const u = data.session?.user ?? null;
       setUser(u);
-      if (u) setShowOnboarding(!localStorage.getItem(`onboarding-done-${u.id}`));
+      if (u) void checkOnboarding(u);
     });
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       const u = session?.user ?? null;
       setUser(u);
-      if (u) setShowOnboarding(!localStorage.getItem(`onboarding-done-${u.id}`));
+      if (u) void checkOnboarding(u);
     });
     return () => subscription.unsubscribe();
   }, []);
@@ -506,14 +522,15 @@ export function App() {
               <motion.div key="landing" className="min-h-screen pb-20"
                 initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.3 }}>
                 <LandingScreen
-                  onStart={handleStart}
+                  onStart={showOnboarding ? () => {} : handleStart}
                   userName={user.user_metadata?.full_name?.split(' ')[0] ?? undefined}
                 />
-                {showOnboarding && sessions.length === 0 && quickLogs.length === 0 && (
+                {showOnboarding && (
                   <OnboardingTour
                     userName={user.user_metadata?.full_name?.split(' ')[0] ?? undefined}
-                    onComplete={() => {
-                      localStorage.setItem(`onboarding-done-${user.id}`, '1');
+                    onComplete={async () => {
+                      localStorage.setItem(`onboarding-done-${user.id}`, '1'); // keep for backward compat
+                      await supabase.from('profiles').update({ onboarding_done: true }).eq('id', user.id);
                       setShowOnboarding(false);
                     }}
                   />
@@ -568,7 +585,7 @@ export function App() {
         )}
       </AnimatePresence>
 
-      {showNav && <NavBar active={activeTab} onNavigate={handleNavigate} />}
+      {showNav && <NavBar active={activeTab} onNavigate={showOnboarding ? () => {} : handleNavigate} />}
     </main>
   );
 }

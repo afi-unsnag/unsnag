@@ -122,24 +122,28 @@ export function AuthScreen({ initialMode = 'signin' }: AuthScreenProps) {
         <h1 className="font-heading text-3xl font-bold text-warm-dark mb-1">Unsnag</h1>
 
         {success ? (
-          <div className="mt-8 space-y-4">
-            <p className="font-body text-base text-warm-dark-light">
-              Check your email to confirm your account.
-            </p>
-            <p className="font-body text-sm text-warm-dark-light opacity-70">
-              Once confirmed, come back here and sign in.
-            </p>
-            <button
-              onClick={() => {
-                setMode('signin');
-                setSuccess(null);
-                setError(null);
-                setName('');
-                navigate('/login', { replace: true });
-              }}
-              className="mt-2 w-full text-center font-body text-sm text-warm-dark-light hover:text-warm-dark transition-colors cursor-pointer">
-              Back to sign in
-            </button>
+          <div className="flex flex-col items-center text-center mt-12 space-y-6">
+            <motion.div
+              className="w-16 h-16 rounded-full bg-mauve border-[3px] border-warm-dark shadow-chunky flex items-center justify-center"
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 14 }}
+            >
+              <span className="text-2xl">✉️</span>
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="space-y-3"
+            >
+              <h2 className="font-heading text-2xl font-bold text-warm-dark">
+                Check your email.
+              </h2>
+              <p className="font-body text-base text-warm-dark-light max-w-xs leading-relaxed">
+                We sent a confirmation link. Click it to get access.
+              </p>
+            </motion.div>
           </div>
         ) : (
           <>

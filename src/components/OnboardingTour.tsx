@@ -242,14 +242,6 @@ export function OnboardingTour({ onComplete, userName }: OnboardingTourProps) {
               </div>
 
               <div className="flex gap-3 items-center">
-                {step === 0 && (
-                  <button
-                    onClick={onComplete}
-                    className="font-body text-xs text-warm-dark-light cursor-pointer hover:text-warm-dark transition-colors"
-                  >
-                    Skip
-                  </button>
-                )}
                 <motion.button
                   onClick={() => {
                     if (isLast) {
