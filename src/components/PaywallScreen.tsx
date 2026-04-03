@@ -11,6 +11,8 @@ interface PaywallScreenProps {
 export function PaywallScreen({ user, onAccessGranted }: PaywallScreenProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const handleSubscribe = async () => {
     setLoading(true);
@@ -43,6 +45,19 @@ export function PaywallScreen({ user, onAccessGranted }: PaywallScreenProps) {
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
+  };
+
+  const handleDeleteAccount = async () => {
+    setDeleting(true);
+    try {
+      await supabase.from('sessions').delete().eq('user_id', user.id);
+      await supabase.from('quick_logs').delete().eq('user_id', user.id);
+      await supabase.from('profiles').delete().eq('id', user.id);
+      await supabase.auth.signOut();
+      window.location.href = 'https://unsnag.co';
+    } catch {
+      setDeleting(false);
+    }
   };
 
   return (
@@ -157,7 +172,43 @@ export function PaywallScreen({ user, onAccessGranted }: PaywallScreenProps) {
         >
           sign out
         </motion.button>
+        <motion.button
+          onClick={() => setShowDeleteConfirm(true)}
+          className="font-body text-xs text-warm-gray underline underline-offset-2 decoration-warm-gray-light cursor-pointer hover:text-tomato transition-colors"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.75 }}
+        >
+          delete my account
+        </motion.button>
       </div>
+
+      {showDeleteConfirm && (
+        <motion.div
+          className="mt-4 w-full max-w-xs rounded-xl border-2 border-tomato bg-cream-dark p-4 text-center"
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
+          <p className="font-body text-sm text-warm-dark-light mb-3">
+            This will permanently delete your account and all your session history. This can't be undone.
+          </p>
+          <div className="flex gap-3 justify-center">
+            <button
+              onClick={handleDeleteAccount}
+              disabled={deleting}
+              className="px-4 py-2 rounded-lg border-2 border-warm-dark bg-tomato font-heading font-semibold text-xs text-white cursor-pointer disabled:opacity-50"
+            >
+              {deleting ? 'Deleting...' : 'Yes, delete'}
+            </button>
+            <button
+              onClick={() => setShowDeleteConfirm(false)}
+              className="font-body text-xs text-warm-dark-light underline underline-offset-2 cursor-pointer hover:text-warm-dark transition-colors"
+            >
+              Cancel
+            </button>
+          </div>
+        </motion.div>
+      )}
     </motion.div>
   );
 }
