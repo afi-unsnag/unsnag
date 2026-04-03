@@ -155,20 +155,11 @@ export function PaywallScreen({ user, onAccessGranted }: PaywallScreenProps) {
 
       <div className="flex items-center gap-4 mt-2">
         <motion.button
-          onClick={onAccessGranted}
-          className="font-body text-xs text-warm-dark-light underline underline-offset-2 decoration-warm-gray-light cursor-pointer hover:text-warm-dark transition-colors"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.65 }}
-        >
-          remind me later
-        </motion.button>
-        <motion.button
           onClick={handleSignOut}
           className="font-body text-xs text-warm-dark-light underline underline-offset-2 decoration-warm-gray-light cursor-pointer hover:text-warm-dark transition-colors"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.7 }}
+          transition={{ delay: 0.65 }}
         >
           sign out
         </motion.button>
@@ -177,7 +168,7 @@ export function PaywallScreen({ user, onAccessGranted }: PaywallScreenProps) {
           className="font-body text-xs text-warm-gray underline underline-offset-2 decoration-warm-gray-light cursor-pointer hover:text-tomato transition-colors"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.75 }}
+          transition={{ delay: 0.7 }}
         >
           delete my account
         </motion.button>
