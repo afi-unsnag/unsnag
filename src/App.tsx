@@ -429,6 +429,17 @@ export function App() {
     }
   }, [user]);
 
+  /* ---- Quick log delete ---- */
+  const handleDeleteQuickLog = useCallback(async (id: string) => {
+    setQuickLogs((prev) => prev.filter((l) => l.id !== id));
+    if (user) await supabase.from('quick_logs').delete().eq('id', id);
+  }, [user]);
+
+  const handleDeleteAllQuickLogs = useCallback(async () => {
+    setQuickLogs([]);
+    if (user) await supabase.from('quick_logs').delete().eq('user_id', user.id);
+  }, [user]);
+
   /* ---- Loading state ---- */
   if (user === undefined || (user && accessStatus === 'loading')) {
     return <div className="min-h-screen bg-cream" />;
@@ -540,7 +551,7 @@ export function App() {
             <Route path="/saved" element={
               <motion.div key="saved" className="min-h-screen"
                 initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
-                <SavedPage quickLogs={quickLogs} onStartFromSaved={handleStartFromSaved} onSave={handleSaveQuickLog} onBack={handleGoHome} />
+                <SavedPage quickLogs={quickLogs} onStartFromSaved={handleStartFromSaved} onSave={handleSaveQuickLog} onDeleteQuickLog={handleDeleteQuickLog} onDeleteAllQuickLogs={handleDeleteAllQuickLogs} onBack={handleGoHome} />
               </motion.div>
             } />
 

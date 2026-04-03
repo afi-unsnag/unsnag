@@ -18,6 +18,11 @@ export function SettingsPage({ user, accessStatus, onBack }: SettingsPageProps) 
   const [trialDaysLeft, setTrialDaysLeft] = useState<number | null>(null);
   const [passwordResetSent, setPasswordResetSent] = useState(false);
   const [passwordResetLoading, setPasswordResetLoading] = useState(false);
+  const [showChangeEmail, setShowChangeEmail] = useState(false);
+  const [newEmail, setNewEmail] = useState('');
+  const [emailUpdateLoading, setEmailUpdateLoading] = useState(false);
+  const [emailUpdateSuccess, setEmailUpdateSuccess] = useState(false);
+  const [emailUpdateError, setEmailUpdateError] = useState<string | null>(null);
 
   useEffect(() => {
     if (accessStatus !== 'trial') return;
@@ -34,6 +39,21 @@ export function SettingsPage({ user, accessStatus, onBack }: SettingsPageProps) 
         setTrialDaysLeft(Math.max(0, Math.ceil(msLeft / (1000 * 60 * 60 * 24))));
       });
   }, [accessStatus, user.id]);
+
+  const handleChangeEmail = async () => {
+    if (!newEmail.trim()) return;
+    setEmailUpdateLoading(true);
+    setEmailUpdateError(null);
+    try {
+      const { error } = await supabase.auth.updateUser({ email: newEmail.trim() });
+      if (error) throw error;
+      setEmailUpdateSuccess(true);
+    } catch (err: unknown) {
+      setEmailUpdateError(err instanceof Error ? err.message : 'Something went wrong.');
+    } finally {
+      setEmailUpdateLoading(false);
+    }
+  };
 
   const handleChangePassword = async () => {
     if (!user.email) return;
@@ -153,6 +173,59 @@ export function SettingsPage({ user, accessStatus, onBack }: SettingsPageProps) 
             <div className="space-y-3">
               <SettingsRow label="Email" value={user.email ?? '—'} />
             </div>
+
+            {emailUpdateSuccess ? (
+              <p className="mt-4 font-body text-sm text-warm-dark-light">
+                Check your new email to confirm the change. ✓
+              </p>
+            ) : showChangeEmail ? (
+              <div className="mt-4 space-y-3">
+                <div>
+                  <label className="font-heading text-xs font-semibold text-warm-dark-light uppercase tracking-wider block mb-1.5">
+                    New email
+                  </label>
+                  <input
+                    type="email"
+                    value={newEmail}
+                    onChange={(e) => setNewEmail(e.target.value)}
+                    className="w-full p-3 rounded-lg border-2 border-warm-gray-light bg-cream-dark font-body text-sm text-warm-dark-light placeholder:text-warm-gray focus:border-warm-dark focus:outline-none transition-colors"
+                    placeholder="new@example.com"
+                  />
+                </div>
+                {emailUpdateError && (
+                  <p className="font-body text-xs text-tomato">{emailUpdateError}</p>
+                )}
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={handleChangeEmail}
+                    disabled={emailUpdateLoading || !newEmail.trim()}
+                    className={`
+                      px-5 py-2.5 rounded-lg border-2 border-warm-dark bg-mauve
+                      font-heading font-semibold text-sm text-warm-dark-light
+                      shadow-chunky-sm cursor-pointer
+                      active:translate-y-[2px] active:shadow-chunky-pressed transition-all
+                      focus:outline-none focus-visible:ring-2 focus-visible:ring-mauve focus-visible:ring-offset-2 focus-visible:ring-offset-cream
+                      ${emailUpdateLoading || !newEmail.trim() ? 'opacity-60 cursor-not-allowed' : ''}
+                    `}
+                  >
+                    {emailUpdateLoading ? 'Sending...' : 'Update email'}
+                  </button>
+                  <button
+                    onClick={() => { setShowChangeEmail(false); setNewEmail(''); setEmailUpdateError(null); }}
+                    className="font-body text-sm text-warm-dark-light underline cursor-pointer hover:text-warm-dark transition-colors"
+                  >
+                    cancel
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <button
+                onClick={() => setShowChangeEmail(true)}
+                className="mt-4 mr-3 px-5 py-2.5 rounded-lg border-2 border-warm-dark bg-cream-dark font-heading font-semibold text-sm text-warm-dark-light shadow-chunky-sm cursor-pointer active:translate-y-[2px] active:shadow-chunky-pressed transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-mauve focus-visible:ring-offset-2 focus-visible:ring-offset-cream">
+                Change email
+              </button>
+            )}
+
             <button
               onClick={() => supabase.auth.signOut()}
               className="mt-4 px-5 py-2.5 rounded-lg border-2 border-warm-dark bg-cream-dark font-heading font-semibold text-sm text-warm-dark-light shadow-chunky-sm cursor-pointer active:translate-y-[2px] active:shadow-chunky-pressed transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-mauve focus-visible:ring-offset-2 focus-visible:ring-offset-cream">

@@ -83,7 +83,7 @@ export function LandingScreen({
           visible: { opacity: 0.5, transition: { delay: 0.6, duration: 0.6 } },
         }}
       >
-        Every time you use Unsnag, you're building a new default response.
+        Every time you use Unsnag, you trust yourself a little more — and need everyone else's approval a little less.
       </motion.p>
     </motion.div>
   );
