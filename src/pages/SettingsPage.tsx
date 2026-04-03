@@ -13,6 +13,8 @@ interface SettingsPageProps {
 
 export function SettingsPage({ user, accessStatus, onBack }: SettingsPageProps) {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
   const [managingBilling, setManagingBilling] = useState(false);
   const [billingError, setBillingError] = useState<string | null>(null);
   const [trialDaysLeft, setTrialDaysLeft] = useState<number | null>(null);
@@ -96,6 +98,42 @@ export function SettingsPage({ user, accessStatus, onBack }: SettingsPageProps) 
     }
   };
 
+  const handleDeleteAccount = async () => {
+    setDeleting(true);
+    setDeleteError(null);
+    try {
+      // Delete all user sessions
+      const { error: sessionsError } = await supabase
+        .from('sessions')
+        .delete()
+        .eq('user_id', user.id);
+      if (sessionsError) throw sessionsError;
+
+      // Delete all user quick logs
+      const { error: logsError } = await supabase
+        .from('quick_logs')
+        .delete()
+        .eq('user_id', user.id);
+      if (logsError) throw logsError;
+
+      // Delete the user's profile
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .delete()
+        .eq('id', user.id);
+      if (profileError) throw profileError;
+
+      // Sign out
+      await supabase.auth.signOut();
+
+      // Redirect to marketing site
+      window.location.href = 'https://unsnag.co';
+    } catch (err: unknown) {
+      setDeleteError(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
+      setDeleting(false);
+    }
+  };
+
   const planLabel = accessStatus === 'subscribed'
     ? 'Paid plan'
     : accessStatus === 'trial'
@@ -144,7 +182,7 @@ export function SettingsPage({ user, accessStatus, onBack }: SettingsPageProps) 
             stiffness: 300,
             damping: 22
           }}>
-          
+
           Settings
         </motion.h1>
 
@@ -166,7 +204,7 @@ export function SettingsPage({ user, accessStatus, onBack }: SettingsPageProps) 
               stiffness: 300,
               damping: 22
             }}>
-            
+
             <h2 className="font-heading text-base font-bold text-warm-dark mb-4">
               Account
             </h2>
@@ -250,7 +288,7 @@ export function SettingsPage({ user, accessStatus, onBack }: SettingsPageProps) 
               stiffness: 300,
               damping: 22
             }}>
-            
+
             <h2 className="font-heading text-base font-bold text-warm-dark mb-4">
               Security
             </h2>
@@ -271,8 +309,6 @@ export function SettingsPage({ user, accessStatus, onBack }: SettingsPageProps) 
                   ${passwordResetLoading ? 'opacity-60 cursor-not-allowed' : ''}
                 `}
               >
-
-
                 {passwordResetLoading ? 'Sending…' : 'Change password'}
               </button>
             )}
@@ -295,7 +331,7 @@ export function SettingsPage({ user, accessStatus, onBack }: SettingsPageProps) 
               stiffness: 300,
               damping: 22
             }}>
-            
+
             <h2 className="font-heading text-base font-bold text-warm-dark mb-4">
               Subscription
             </h2>
@@ -330,21 +366,9 @@ export function SettingsPage({ user, accessStatus, onBack }: SettingsPageProps) 
           {/* Danger zone */}
           <motion.section
             className="rounded-xl border-2 border-tomato/50 bg-cream p-5"
-            initial={{
-              opacity: 0,
-              y: 16
-            }}
-            animate={{
-              opacity: 1,
-              y: 0
-            }}
-            transition={{
-              delay: 0.2,
-              type: 'spring',
-              stiffness: 300,
-              damping: 22
-            }}>
-            
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2, type: 'spring', stiffness: 300, damping: 22 }}>
             <h2 className="font-heading text-base font-bold text-tomato mb-2">
               Danger zone
             </h2>
@@ -352,65 +376,56 @@ export function SettingsPage({ user, accessStatus, onBack }: SettingsPageProps) 
               This permanently deletes your account and all your data.
             </p>
 
-            {!showDeleteConfirm ?
-            <button
-              onClick={() => setShowDeleteConfirm(true)}
-              className="
+            {!showDeleteConfirm ? (
+              <button
+                onClick={() => setShowDeleteConfirm(true)}
+                className="
                   px-5 py-2.5 rounded-lg border-2 border-tomato bg-cream
                   font-heading font-semibold text-sm text-tomato
                   cursor-pointer hover:bg-tomato hover:text-cream transition-all duration-150
                   focus:outline-none focus-visible:ring-2 focus-visible:ring-tomato focus-visible:ring-offset-2 focus-visible:ring-offset-cream
-                ">
-
-
-
-
-
-              
-                Delete account
-              </button> :
-
-            <motion.div
-              className="flex items-center gap-3"
-              initial={{
-                opacity: 0,
-                x: -8
-              }}
-              animate={{
-                opacity: 1,
-                x: 0
-              }}
-              transition={{
-                type: 'spring',
-                stiffness: 400,
-                damping: 20
-              }}>
-              
-                <button
-                className="
-                    px-5 py-2.5 rounded-lg border-2 border-warm-dark bg-tomato
-                    font-heading font-semibold text-sm text-cream
-                    shadow-chunky-sm cursor-pointer
-                    active:translate-y-[2px] active:shadow-chunky-pressed transition-all
-                    focus:outline-none focus-visible:ring-2 focus-visible:ring-warm-dark
-                  ">
-
-
-
-
-
-
-                
-                  Yes, delete everything
-                </button>
-                <button
-                onClick={() => setShowDeleteConfirm(false)}
-                className="font-body text-sm text-warm-dark-light underline cursor-pointer hover:text-warm-dark transition-colors">
-                
-                  cancel
-                </button>
+                "
+              >
+                Delete my account
+              </button>
+            ) : (
+              <motion.div
+                className="space-y-3"
+                initial={{ opacity: 0, x: -8 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 20 }}
+              >
+                <p className="font-body text-sm text-warm-dark">
+                  Are you sure? This will permanently delete your account and all your session history. This can't be undone.
+                </p>
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={handleDeleteAccount}
+                    disabled={deleting}
+                    className={`
+                      px-5 py-2.5 rounded-lg border-2 border-warm-dark bg-tomato
+                      font-heading font-semibold text-sm text-cream
+                      shadow-chunky-sm cursor-pointer
+                      active:translate-y-[2px] active:shadow-chunky-pressed transition-all
+                      focus:outline-none focus-visible:ring-2 focus-visible:ring-warm-dark
+                      ${deleting ? 'opacity-60 cursor-not-allowed' : ''}
+                    `}
+                  >
+                    {deleting ? 'Deleting...' : 'Yes, delete my account'}
+                  </button>
+                  <button
+                    onClick={() => { setShowDeleteConfirm(false); setDeleteError(null); }}
+                    disabled={deleting}
+                    className="font-body text-sm text-warm-dark-light underline cursor-pointer hover:text-warm-dark transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </div>
+                {deleteError && (
+                  <p className="font-body text-xs text-tomato">{deleteError}</p>
+                )}
               </motion.div>
-            }
+            )}
           </motion.section>
         </div>
       </div>
