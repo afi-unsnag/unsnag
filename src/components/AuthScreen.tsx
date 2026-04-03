@@ -218,6 +218,19 @@ export function AuthScreen({ initialMode = 'signin' }: AuthScreenProps) {
                 className="w-full py-3.5 rounded-xl border-[3px] border-warm-dark bg-mauve font-heading font-semibold text-base text-warm-dark shadow-chunky cursor-pointer focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed">
                 {loading ? '…' : mode === 'signin' ? 'Sign in' : 'Create account'}
               </button>
+
+              {mode === 'signup' && (
+                <p className="font-body text-xs text-warm-gray text-center mt-3 leading-relaxed">
+                  By creating an account, you agree to our{' '}
+                  <a href="https://unsnag.co/terms" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 decoration-warm-gray-light hover:text-warm-dark-light transition-colors">
+                    Terms of Service
+                  </a>{' '}
+                  and{' '}
+                  <a href="https://unsnag.co/privacy" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 decoration-warm-gray-light hover:text-warm-dark-light transition-colors">
+                    Privacy Policy
+                  </a>.
+                </p>
+              )}
             </form>
 
             <button
