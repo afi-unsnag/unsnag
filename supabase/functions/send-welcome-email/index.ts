@@ -39,6 +39,21 @@ Deno.serve(async (req) => {
       });
     }
 
+    // Atomically claim this send — only proceeds if welcome_email_sent was false
+    const { data: claimed } = await supabase
+      .from('profiles')
+      .update({ welcome_email_sent: true })
+      .eq('id', record.id)
+      .eq('welcome_email_sent', false)
+      .select('id');
+
+    if (!claimed || claimed.length === 0) {
+      // Another invocation already claimed this — skip
+      return new Response(JSON.stringify({ skipped: true, reason: 'already claimed' }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     const firstName = record.raw_user_meta_data?.full_name?.split(' ')[0] || '';
     const greeting = firstName ? `Hey, ${firstName}!` : 'Hey!';
 
@@ -60,6 +75,7 @@ Deno.serve(async (req) => {
       .email-card { background-color: #2D2A26 !important; border-color: #4A4640 !important; }
       .email-heading { color: #FAF7F2 !important; }
       .email-body-text { color: #E8E3DB !important; }
+      .email-bold { color: #FAF7F2 !important; }
       .email-muted { color: #B8B2A8 !important; }
       .email-logo { color: #FAF7F2 !important; }
     }
@@ -95,7 +111,7 @@ Deno.serve(async (req) => {
                   <td style="padding: 36px 32px;">
 
                     <p class="email-heading" style="margin: 0 0 16px; font-size: 22px; font-weight: 600; color: #2D2A26;">
-                      ${greeting} Welcome to Unsnag. 🫶
+                      ${greeting} Welcome to Unsnag. ✨
                     </p>
 
                     <p class="email-body-text" style="margin: 0 0 20px; font-size: 15px; line-height: 1.65; color: #4A4640;">
@@ -107,15 +123,15 @@ Deno.serve(async (req) => {
                     </p>
 
                     <p class="email-body-text" style="margin: 0 0 8px; font-size: 15px; line-height: 1.65; color: #4A4640;">
-                      <strong style="color: #2D2A26;">Open it when something's bothering you.</strong> Someone's tone, an unanswered text, the panic before a hard conversation — that's when you use it.
+                      <strong class="email-bold" style="color: #2D2A26;">Open it when something's bothering you.</strong> Someone's tone, an unanswered text, the panic before a hard conversation — that's when you use it.
                     </p>
 
                     <p class="email-body-text" style="margin: 0 0 8px; font-size: 15px; line-height: 1.65; color: #4A4640;">
-                      <strong style="color: #2D2A26;">Follow the 6 steps.</strong> They take about 5–8 minutes. No homework after.
+                      <strong class="email-bold" style="color: #2D2A26;">Follow the 6 steps.</strong> They take about 5–8 minutes. No homework after.
                     </p>
 
                     <p class="email-body-text" style="margin: 0 0 20px; font-size: 15px; line-height: 1.65; color: #4A4640;">
-                      <strong style="color: #2D2A26;">Use it every time.</strong> The more you do, the less you spiral. That's the whole thing.
+                      <strong class="email-bold" style="color: #2D2A26;">Use it every time.</strong> The more you do, the less you spiral. That's the whole thing.
                     </p>
 
                     <!-- CTA Button -->
@@ -130,15 +146,13 @@ Deno.serve(async (req) => {
                     </table>
 
                     <p class="email-body-text" style="margin: 0 0 20px; font-size: 15px; line-height: 1.65; color: #4A4640;">
-                      Bookmark <strong style="color: #2D2A26;">app.unsnag.co</strong> so it's always easy to find.
-                    </p>
-
-                    <p class="email-body-text" style="margin: 0 0 0; font-size: 15px; line-height: 1.65; color: #4A4640;">
-                      I built this because I needed it first. I'm really glad you're here.
+                      Bookmark <strong class="email-bold" style="color: #2D2A26;">app.unsnag.co</strong> so it's always easy to find.
                     </p>
 
                     <p class="email-body-text" style="margin: 16px 0 0; font-size: 15px; line-height: 1.65; color: #4A4640;">
-                      — Afi
+                      Glad you're here,<br>
+                      — Afi<br>
+                      <span class="email-muted" style="font-size: 13px; color: #B8B2A8;">Founder of Unsnag. Mostly retired people-pleaser.</span>
                     </p>
 
                   </td>
@@ -182,12 +196,6 @@ Deno.serve(async (req) => {
       const err = await res.text();
       throw new Error(`Resend error: ${err}`);
     }
-
-    // Mark welcome email as sent
-    await supabase
-      .from('profiles')
-      .update({ welcome_email_sent: true })
-      .eq('id', record.id);
 
     return new Response(JSON.stringify({ success: true }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
