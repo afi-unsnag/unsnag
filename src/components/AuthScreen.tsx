@@ -119,7 +119,7 @@ export function AuthScreen({ initialMode = 'signin' }: AuthScreenProps) {
         animate={{ opacity: 1, y: 0 }}
         transition={{ type: 'spring', stiffness: 300, damping: 24 }}>
 
-        <h1 className="font-heading text-3xl font-bold text-warm-dark mb-1">Unsnag</h1>
+        {!success && <h1 className="font-heading text-3xl font-bold text-warm-dark mb-1">Unsnag</h1>}
 
         {success ? (
           <div className="flex flex-col items-center text-center mt-12 space-y-6">
