@@ -32,12 +32,6 @@ const tourSteps = [
     mode: 'spotlight' as const,
   },
   {
-    title: 'Settings',
-    body: "Manage your account and subscription here.",
-    tourTarget: 'nav-settings',
-    mode: 'spotlight' as const,
-  },
-  {
     title: "That's it — you're ready to go.",
     body: "Next time something's stuck in your head, open Unsnag and tap the button. You'll know what to do.",
     tourTarget: null,
