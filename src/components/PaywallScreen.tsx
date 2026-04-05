@@ -83,7 +83,7 @@ export function PaywallScreen({ user, onAccessGranted }: PaywallScreenProps) {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2, type: 'spring', stiffness: 300, damping: 22 }}
       >
-        You've been showing up for yourself.
+        You've been feeling the hard stuff instead of running from it.
       </motion.h1>
 
       <motion.p
