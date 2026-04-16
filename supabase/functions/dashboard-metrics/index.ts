@@ -18,20 +18,22 @@ Deno.serve(async (req) => {
 
     // Run all queries in parallel
     const [
+      freeToolUsesResult,
       leadsResult,
       profilesResult,
+      trialingResult,
       activeSubsResult,
       allSubsResult,
       sessionsResult,
-      nurtureResult,
     ] = await Promise.all([
+      supabase.from('free_tool_submissions').select('id', { count: 'exact', head: true }),
       supabase.from('leads').select('id', { count: 'exact', head: true }).eq('source', 'free-tool'),
       supabase.from('profiles').select('id', { count: 'exact', head: true }),
+      supabase.from('profiles').select('id', { count: 'exact', head: true }).eq('stripe_subscription_status', 'trialing'),
       supabase.from('profiles').select('id', { count: 'exact', head: true }).eq('stripe_subscription_status', 'active'),
       // Also count incomplete/trialing as "has a subscription" (common in test mode)
       supabase.from('profiles').select('id', { count: 'exact', head: true }).not('stripe_subscription_id', 'is', null),
       supabase.from('sessions').select('id', { count: 'exact', head: true }).eq('completed', true),
-      supabase.from('nurture_emails').select('id', { count: 'exact', head: true }),
     ]);
 
     // Use active count if available, otherwise fall back to anyone with a subscription ID
@@ -40,11 +42,12 @@ Deno.serve(async (req) => {
     const subscribers = activeCount > 0 ? activeCount : totalWithSub;
 
     return new Response(JSON.stringify({
-      freeToolLeads: leadsResult.count ?? 0,
+      freeToolUses: freeToolUsesResult.count ?? 0,
+      leads: leadsResult.count ?? 0,
       totalUsers: profilesResult.count ?? 0,
+      freeTrials: trialingResult.count ?? 0,
       activeSubscribers: subscribers,
       sessionsCompleted: sessionsResult.count ?? 0,
-      nurtureEmailsSent: nurtureResult.count ?? 0,
       estMonthlyRevenue: subscribers * 5,
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
