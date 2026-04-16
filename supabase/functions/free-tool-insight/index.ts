@@ -38,7 +38,38 @@ Deno.serve(async (req) => {
       );
     }
 
-    const { situation, email } = await req.json();
+    const body = await req.json();
+    const { situation, email, session_id, subscribe_only } = body;
+
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+
+    // Subscribe-only path: post-result email capture, no new AI call
+    if (subscribe_only) {
+      if (email && typeof email === 'string' && email.includes('@')) {
+        try {
+          await fetch(`${supabaseUrl}/rest/v1/leads`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              apikey: supabaseKey,
+              Authorization: `Bearer ${supabaseKey}`,
+              Prefer: 'resolution=merge-duplicates',
+            },
+            body: JSON.stringify({
+              email: email.toLowerCase().trim(),
+              source: 'free-tool',
+              created_at: new Date().toISOString(),
+            }),
+          });
+        } catch {
+          console.error('Failed to store lead');
+        }
+      }
+      return new Response(JSON.stringify({ ok: true }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
 
     if (!situation || typeof situation !== 'string' || situation.trim().length < 10) {
       return new Response(
@@ -53,9 +84,6 @@ Deno.serve(async (req) => {
     // If email provided, store it as a lead
     if (email && typeof email === 'string' && email.includes('@')) {
       try {
-        const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-        const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-
         await fetch(`${supabaseUrl}/rest/v1/leads`, {
           method: 'POST',
           headers: {
@@ -138,6 +166,30 @@ Return ONLY valid JSON with this exact structure and nothing else:
     if (!jsonMatch) throw new Error('Could not parse AI response');
 
     const parsed = JSON.parse(jsonMatch[0]);
+
+    // Log the submission (situation + AI output) for product insight
+    try {
+      await fetch(`${supabaseUrl}/rest/v1/free_tool_submissions`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          apikey: supabaseKey,
+          Authorization: `Bearer ${supabaseKey}`,
+        },
+        body: JSON.stringify({
+          situation: trimmedSituation,
+          whats_yours: parsed.whatsYours ?? null,
+          whats_not_yours: parsed.whatsNotYours ?? null,
+          email: email && typeof email === 'string' && email.includes('@')
+            ? email.toLowerCase().trim()
+            : null,
+          session_id: typeof session_id === 'string' ? session_id.slice(0, 64) : null,
+        }),
+      });
+    } catch {
+      // Don't block the response if logging fails
+      console.error('Failed to log submission');
+    }
 
     return new Response(JSON.stringify(parsed), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
