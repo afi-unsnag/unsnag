@@ -115,7 +115,7 @@ Deno.serve(async (req) => {
                     </p>
 
                     <p class="email-body-text" style="margin: 0 0 20px; font-size: 15px; line-height: 1.65; color: #4A4640;">
-                      You just took a step that most people skip — you decided to actually do something about the overthinking, the people-pleasing, the carrying everyone else's stuff. That matters.
+                      You just decided to do something about the overthinking, the people-pleasing, the carrying everyone else's stuff. That matters.
                     </p>
 
                     <p class="email-body-text" style="margin: 0 0 20px; font-size: 15px; line-height: 1.65; color: #4A4640;">
@@ -131,7 +131,7 @@ Deno.serve(async (req) => {
                     </p>
 
                     <p class="email-body-text" style="margin: 0 0 20px; font-size: 15px; line-height: 1.65; color: #4A4640;">
-                      <strong class="email-bold" style="color: #2D2A26;">Use it every time.</strong> The more you do, the less you spiral. That's the whole thing.
+                      <strong class="email-bold" style="color: #2D2A26;">Use it every time.</strong> The more you do it, the less the old patterns run the show. That's the whole thing.
                     </p>
 
                     <!-- CTA Button -->
