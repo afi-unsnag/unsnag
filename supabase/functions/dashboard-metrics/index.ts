@@ -30,7 +30,7 @@ Deno.serve(async (req) => {
       supabase.from('leads').select('id', { count: 'exact', head: true }).eq('source', 'free-tool'),
       supabase.from('profiles').select('id', { count: 'exact', head: true }),
       // Free trials = signed up but not paying (status is null or 'trialing')
-      supabase.from('profiles').select('id', { count: 'exact', head: true }).not('stripe_subscription_status', 'eq', 'active'),
+      supabase.from('profiles').select('id', { count: 'exact', head: true }).or('stripe_subscription_status.is.null,stripe_subscription_status.eq.trialing'),
       supabase.from('profiles').select('id', { count: 'exact', head: true }).eq('stripe_subscription_status', 'active'),
       // Also count incomplete/trialing as "has a subscription" (common in test mode)
       supabase.from('profiles').select('id', { count: 'exact', head: true }).not('stripe_subscription_id', 'is', null),
