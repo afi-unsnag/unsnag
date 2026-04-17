@@ -62,7 +62,7 @@ const FREE_TOOL_SEQUENCE: SequenceEmail[] = [
   {
     key: 'free-tool-2',
     delayDays: 2,
-    subject: 'You can name the pattern. So why can\\'t you stop it?',
+    subject: 'You can name the pattern. So why can\'t you stop it?',
     buildHtml: () => wrapEmail(`
       <p class="email-body-text" style="margin: 0 0 20px; font-size: 15px; line-height: 1.65; color: #4A4640;">
         You can describe your patterns to a friend better than most therapists could. You know you overthink. You know you take on other people's stuff. You've read the books.
@@ -140,7 +140,7 @@ const FREE_TOOL_SEQUENCE: SequenceEmail[] = [
   {
     key: 'free-tool-5',
     delayDays: 11,
-    subject: 'One more thing, then I\\'ll stop',
+    subject: 'One more thing, then I\'ll stop',
     buildHtml: () => wrapEmail(`
       <p class="email-body-text" style="margin: 0 0 20px; font-size: 15px; line-height: 1.65; color: #4A4640;">
         You used the free tool. You saw what's yours and what isn't. That clarity is real.
@@ -236,7 +236,7 @@ const TRIAL_SEQUENCE: SequenceEmail[] = [
   {
     key: 'trial-3',
     delayDays: 8,
-    subject: 'The shift is quieter than you\\'d expect',
+    subject: 'The shift is quieter than you\'d expect',
     buildHtml: () => wrapEmail(`
       <p class="email-body-text" style="margin: 0 0 20px; font-size: 15px; line-height: 1.65; color: #4A4640;">
         You've had Unsnag for about a week. Here's what I'd be looking for if I were you:
