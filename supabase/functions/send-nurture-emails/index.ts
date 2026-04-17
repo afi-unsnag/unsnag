@@ -35,24 +35,25 @@ const FREE_TOOL_SEQUENCE: SequenceEmail[] = [
   {
     key: 'free-tool-1',
     delayDays: 0,
-    subject: "Here's what just happened",
+    subject: 'The part nobody talks about',
     buildHtml: () => wrapEmail(`
-      <p class="email-heading" style="margin: 0 0 16px; font-size: 22px; font-weight: 600; color: #2D2A26;">
-        You just did something most people don't.
+      <p class="email-body-text" style="margin: 0 0 20px; font-size: 15px; line-height: 1.65; color: #4A4640;">
+        You just separated what's yours to feel from what isn't. Most people never get that far. They stay in the tangle, carrying everyone else's stuff and wondering why they're exhausted.
       </p>
       <p class="email-body-text" style="margin: 0 0 20px; font-size: 15px; line-height: 1.65; color: #4A4640;">
-        You looked at a situation that was bothering you and separated out what's actually yours to feel from what you've been carrying for someone else.
+        So now you can see it. Your guilt about prioritizing yourself? Yours. Their disappointment? Theirs. Clean line.
       </p>
       <p class="email-body-text" style="margin: 0 0 20px; font-size: 15px; line-height: 1.65; color: #4A4640;">
-        That distinction is everything. Because most of what's been keeping you stuck — the overthinking, the guilt, the "what did I do wrong" — is a tangle of your feelings mixed in with feelings that were never yours to begin with.
+        But here's the part nobody talks about: seeing it and changing it are two completely different skills. You can draw the line perfectly on paper and still cross it the second someone gives you a look.
       </p>
       <p class="email-body-text" style="margin: 0 0 20px; font-size: 15px; line-height: 1.65; color: #4A4640;">
-        <strong class="email-bold" style="color: #2D2A26;">Their disappointment? Theirs.</strong> Your fear of their disappointment? That's yours — and it's worth sitting with.
+        That's not a failure. That's just how patterns work. They don't live in your understanding. They live somewhere deeper.
       </p>
       <p class="email-body-text" style="margin: 0 0 20px; font-size: 15px; line-height: 1.65; color: #4A4640;">
-        The tool you just used — Yours or Not — is one piece of a 6-step process called Unsnag. Over the next few emails, I'll show you the rest — and why seeing the separation is powerful, but it's not enough to actually change the pattern.
+        I wrote about this here: <a href="https://unsnag.co/blog/what-does-feeling-your-feelings-mean.html" style="color: #2D2A26; font-weight: 600;">What does "feeling your feelings" actually mean?</a>
       </p>
       <p class="email-body-text" style="margin: 0; font-size: 15px; line-height: 1.65; color: #4A4640;">
+        It's one of those things that sounds simple until you actually try it. I think you'll like it.<br><br>
         More soon.<br>
         — Afi
       </p>
@@ -61,28 +62,25 @@ const FREE_TOOL_SEQUENCE: SequenceEmail[] = [
   {
     key: 'free-tool-2',
     delayDays: 2,
-    subject: 'Why you can see it but can\'t stop doing it',
+    subject: 'You can name the pattern. So why can\\'t you stop it?',
     buildHtml: () => wrapEmail(`
-      <p class="email-heading" style="margin: 0 0 16px; font-size: 22px; font-weight: 600; color: #2D2A26;">
-        Seeing it doesn't stop it. Here's why.
+      <p class="email-body-text" style="margin: 0 0 20px; font-size: 15px; line-height: 1.65; color: #4A4640;">
+        You can describe your patterns to a friend better than most therapists could. You know you overthink. You know you take on other people's stuff. You've read the books.
       </p>
       <p class="email-body-text" style="margin: 0 0 20px; font-size: 15px; line-height: 1.65; color: #4A4640;">
-        You've probably had this experience: you can see the pattern. You know you're overthinking. You know you're taking on someone else's stuff. You can describe it perfectly.
+        And you still do it.
       </p>
       <p class="email-body-text" style="margin: 0 0 20px; font-size: 15px; line-height: 1.65; color: #4A4640;">
-        And you do it anyway.
+        That's because the pattern isn't a thought. It's a physical response. Your chest tightens before your brain even gets involved. Your stomach drops before you've finished reading the text. The reaction is in your body, and your body doesn't care how many books you've read.
       </p>
       <p class="email-body-text" style="margin: 0 0 20px; font-size: 15px; line-height: 1.65; color: #4A4640;">
-        That's not a discipline problem. It's because <strong class="email-bold" style="color: #2D2A26;">the pattern lives in your body, not your head</strong>. You've been trying to think your way out of something that isn't a thought — it's a feeling. A physical sensation. And it needs to be felt, not figured out.
+        This is the thing that changed everything for me: the body doesn't need you to understand the pattern. It needs you to feel the sensation long enough for it to pass. No analysis required.
       </p>
       <p class="email-body-text" style="margin: 0 0 20px; font-size: 15px; line-height: 1.65; color: #4A4640;">
-        A feeling fully felt lasts about 90 seconds. That's it. But most of us never get there because we jump to fixing, explaining, or managing someone else's reaction instead.
-      </p>
-      <p class="email-body-text" style="margin: 0 0 20px; font-size: 15px; line-height: 1.65; color: #4A4640;">
-        Yours or Not showed you what's yours to feel. The full Unsnag process teaches you to actually feel it — in your body, for 90 seconds — so it moves through you and stops running your behavior.
+        And here's the part that's hard to hear: when you numb the uncomfortable stuff, the good stuff gets quieter too. The joy, the excitement, the full-body laugh. It all runs on the same wiring. I wrote about that here: <a href="https://unsnag.co/blog/you-cant-turn-down-pain-without-turning-down-joy.html" style="color: #2D2A26; font-weight: 600;">You can't turn down pain without turning down joy, too.</a>
       </p>
       <p class="email-body-text" style="margin: 0; font-size: 15px; line-height: 1.65; color: #4A4640;">
-        Next time, I'll show you what that looks like with a real example.<br>
+        Let me know if it resonates.<br><br>
         — Afi
       </p>
     `),
@@ -90,34 +88,25 @@ const FREE_TOOL_SEQUENCE: SequenceEmail[] = [
   {
     key: 'free-tool-3',
     delayDays: 5,
-    subject: 'The unanswered text (you know the one)',
+    subject: 'That thing you do? It used to protect you.',
     buildHtml: () => wrapEmail(`
-      <p class="email-heading" style="margin: 0 0 16px; font-size: 22px; font-weight: 600; color: #2D2A26;">
-        Someone hasn't texted you back. It's been 4 hours.
+      <p class="email-body-text" style="margin: 0 0 20px; font-size: 15px; line-height: 1.65; color: #4A4640;">
+        The people-pleasing. The overthinking. The "I'm fine" when you're not fine. The swallowing what you need so nobody's uncomfortable.
       </p>
       <p class="email-body-text" style="margin: 0 0 20px; font-size: 15px; line-height: 1.65; color: #4A4640;">
-        And you've already decided it's your fault. Maybe you said something wrong. Maybe you're too much. Maybe they're mad. You check your phone again. You replay the last conversation. You draft a follow-up and delete it.
+        Those aren't flaws. They're strategies. Really effective ones, actually. At some point, probably pretty early, your brain figured out that staying small, staying agreeable, staying one step ahead of everyone's mood was the safest play. And it worked. It kept the peace. It kept you safe.
       </p>
       <p class="email-body-text" style="margin: 0 0 20px; font-size: 15px; line-height: 1.65; color: #4A4640;">
-        Here's what Yours or Not would show you:
-      </p>
-      <p class="email-body-text" style="margin: 0 0 6px; font-size: 15px; line-height: 1.65; color: #4A4640;">
-        <strong class="email-bold" style="color: #2D2A26;">Yours to feel:</strong> The anxiety in your chest. The fear that you're annoying. The old pattern of needing to be liked to feel safe.
+        The problem is it's still running. The situation changed, but the software didn't update. So now you're managing everyone's feelings in a meeting the same way you managed them at the dinner table when you were ten.
       </p>
       <p class="email-body-text" style="margin: 0 0 20px; font-size: 15px; line-height: 1.65; color: #4A4640;">
-        <strong class="email-bold" style="color: #2D2A26;">Not yours to feel:</strong> Why they haven't responded. Whether they're upset. What their silence means.
+        You don't need to fight the pattern. You just need to notice that it's firing when you don't need it anymore. That gap between the old reaction and a different choice is where everything changes.
       </p>
       <p class="email-body-text" style="margin: 0 0 20px; font-size: 15px; line-height: 1.65; color: #4A4640;">
-        That's useful. But it doesn't stop the spiral. What stops the spiral is feeling the anxiety in your chest — actually staying with it for 90 seconds — so it can move. That's what the full process does. Steps 1 through 6, about 5 minutes, and the grip loosens.
-      </p>
-      <p class="email-body-text" style="margin: 0 0 20px; font-size: 15px; line-height: 1.65; color: #4A4640;">
-        Do it enough times and you stop reaching for your phone to check. Not because you're forcing yourself — because the feeling doesn't have you anymore.
-      </p>
-      ${ctaButton('Try the full process — 14 days free', 'https://app.unsnag.co/signup')}
-      <p class="email-muted" style="margin: 0 0 20px; font-size: 13px; color: #B8B2A8; text-align: center;">
-        No credit card required
+        This one goes deeper if you want it: <a href="https://unsnag.co/blog/the-habits-you-want-to-change.html" style="color: #2D2A26; font-weight: 600;">The habits you want to change once helped you survive.</a>
       </p>
       <p class="email-body-text" style="margin: 0; font-size: 15px; line-height: 1.65; color: #4A4640;">
+        It's one of the posts people tell me they send to their friends. I hope it hits the same way for you.<br><br>
         — Afi
       </p>
     `),
@@ -127,54 +116,50 @@ const FREE_TOOL_SEQUENCE: SequenceEmail[] = [
     delayDays: 8,
     subject: 'Why I built this',
     buildHtml: () => wrapEmail(`
-      <p class="email-heading" style="margin: 0 0 16px; font-size: 22px; font-weight: 600; color: #2D2A26;">
-        I could explain every pattern I had. And I still fell apart over an unanswered text.
+      <p class="email-body-text" style="margin: 0 0 20px; font-size: 15px; line-height: 1.65; color: #4A4640;">
+        Hey 👋 I'm Afi. I have a three-year-old, a psychology background, and I'm a certified life coach. I also spent most of my adult life performing "I'm fine" while my body was doing something completely different underneath.
       </p>
       <p class="email-body-text" style="margin: 0 0 20px; font-size: 15px; line-height: 1.65; color: #4A4640;">
-        I'm Afi. I built Unsnag. And I built it because I was exactly where you probably are — years of therapy, all the books, could articulate my patterns perfectly. And I was still people-pleasing, still overthinking, still second-guessing myself constantly. It was exhausting.
+        I built Unsnag because I got tired of understanding my patterns and still being run by them. I wanted something simple enough to actually use in the moment, easy enough to make a habit out of, because consistency is what actually changes behavior. Not one big breakthrough.
       </p>
       <p class="email-body-text" style="margin: 0 0 20px; font-size: 15px; line-height: 1.65; color: #4A4640;">
-        What changed wasn't more understanding. It was getting out of my head and into my body. Actually feeling the feeling instead of thinking about it. Neuroscience shows that a feeling fully felt — the actual chemical process in your body — lasts about 90 seconds. Once I started doing that, everything shifted.
+        Life's too short not to <a href="https://unsnag.co/blog/the-point-of-being-alive.html" style="color: #2D2A26; font-weight: 600;">fully experience it</a>, and I was tired of all my old patterns getting in the way of that.
       </p>
       <p class="email-body-text" style="margin: 0 0 20px; font-size: 15px; line-height: 1.65; color: #4A4640;">
-        I have a psychology background and I'm a certified life coach, but honestly? The thing that made me build this was becoming a mom. I have a three-year-old, and I don't want her to grow up carrying what I carried. If I can break this pattern in myself, I can stop passing it along. That felt urgent enough to build something.
-      </p>
-      <p class="email-body-text" style="margin: 0 0 20px; font-size: 15px; line-height: 1.65; color: #4A4640;">
-        So Unsnag is that thing. 6 steps. About 5 minutes. Use it every time something gets under your skin. The more you do it, the less the old patterns run the show.
+        What's a pattern you keep catching yourself in but can't seem to shake? I'd love to hear from you.
       </p>
       <p class="email-body-text" style="margin: 0; font-size: 15px; line-height: 1.65; color: #4A4640;">
-        If any of this sounds familiar, I'd love for you to try it.<br>
         — Afi
       </p>
       ${ctaButton('Start your free trial', 'https://app.unsnag.co/signup')}
       <p class="email-muted" style="margin: 0; font-size: 13px; color: #B8B2A8; text-align: center;">
-        14 days free · No credit card required
+        14 days free. No credit card required.
       </p>
     `),
   },
   {
     key: 'free-tool-5',
     delayDays: 11,
-    subject: 'You\'ve seen what\'s yours. Ready to feel it?',
+    subject: 'One more thing, then I\\'ll stop',
     buildHtml: () => wrapEmail(`
-      <p class="email-heading" style="margin: 0 0 16px; font-size: 22px; font-weight: 600; color: #2D2A26;">
-        One last thing.
+      <p class="email-body-text" style="margin: 0 0 20px; font-size: 15px; line-height: 1.65; color: #4A4640;">
+        You used the free tool. You saw what's yours and what isn't. That clarity is real.
       </p>
       <p class="email-body-text" style="margin: 0 0 20px; font-size: 15px; line-height: 1.65; color: #4A4640;">
-        You used Yours or Not. You saw what's yours to feel and what isn't. That clarity is real.
+        But here's the honest part: seeing it doesn't change it. The pattern keeps going because the feeling underneath hasn't been felt. It's still in your body. Still driving the overthinking. Still making you swallow what you actually want to say.
       </p>
       <p class="email-body-text" style="margin: 0 0 20px; font-size: 15px; line-height: 1.65; color: #4A4640;">
-        But here's the honest truth: seeing it won't change it. The pattern keeps running because the feeling underneath hasn't been felt. It's still in your body, still driving the overthinking, still making you reach for your phone or swallow what you actually want to say.
+        The full Unsnag process takes about five minutes. You feel the feeling in your body, you stay with it, and you let it move. Do that enough times and the pattern loses its grip. Not because you figured it out. Because you felt it.
       </p>
       <p class="email-body-text" style="margin: 0 0 20px; font-size: 15px; line-height: 1.65; color: #4A4640;">
-        The full Unsnag process takes about 5 minutes. You feel the feeling in your body, you stay with it for 90 seconds, and you let it move. Do that enough times and the pattern loses its grip. Not because you figured it out — because you felt it.
+        If you've been doing the work and wondering why you're still stuck, this might land: <a href="https://unsnag.co/blog/still-stuck-after-all-the-work.html" style="color: #2D2A26; font-weight: 600;">Still stuck after all the work? Here's what's missing.</a>
       </p>
-      ${ctaButton('Try it — 14 days free', 'https://app.unsnag.co/signup')}
+      ${ctaButton('Try it. 14 days free.', 'https://app.unsnag.co/signup')}
       <p class="email-muted" style="margin: 0 0 20px; font-size: 13px; color: #B8B2A8; text-align: center;">
-        No credit card · $5/month after trial · Cancel anytime
+        No credit card. $5/month after. Cancel anytime.
       </p>
       <p class="email-body-text" style="margin: 0; font-size: 15px; line-height: 1.65; color: #4A4640;">
-        Either way, I'm glad you tried Yours or Not.<br>
+        Either way, I'm really glad you tried the tool. This is my last email in this series, but <a href="https://unsnag.co/blog/" style="color: #2D2A26; font-weight: 600;">the blog</a> is always there if you want to keep reading. I'm rooting for you.<br><br>
         — Afi
       </p>
     `),
@@ -185,38 +170,35 @@ const TRIAL_SEQUENCE: SequenceEmail[] = [
   {
     key: 'trial-1',
     delayDays: 1,
-    subject: 'What a session looks like',
+    subject: 'What five minutes in Unsnag looks like',
     buildHtml: () => wrapEmail(`
-      <p class="email-heading" style="margin: 0 0 16px; font-size: 22px; font-weight: 600; color: #2D2A26;">
-        Here's what a session looks like.
+      <p class="email-body-text" style="margin: 0 0 20px; font-size: 15px; line-height: 1.65; color: #4A4640;">
+        Whether you've already tried a session or you're waiting for the right moment, here's what the six steps actually are:
+      </p>
+      <p class="email-body-text" style="margin: 0 0 6px; font-size: 15px; line-height: 1.65; color: #4A4640;">
+        <strong class="email-bold" style="color: #2D2A26;">Unload.</strong> Get what's in your head out of your head. Type or talk. No filter.
+      </p>
+      <p class="email-body-text" style="margin: 0 0 6px; font-size: 15px; line-height: 1.65; color: #4A4640;">
+        <strong class="email-bold" style="color: #2D2A26;">Name.</strong> Tap the emotions that fit. Just naming them starts to loosen the grip.
+      </p>
+      <p class="email-body-text" style="margin: 0 0 6px; font-size: 15px; line-height: 1.65; color: #4A4640;">
+        <strong class="email-bold" style="color: #2D2A26;">Sensation.</strong> Where do you feel this in your body? Tight chest. Heavy shoulders. Knot in the stomach. Find it.
+      </p>
+      <p class="email-body-text" style="margin: 0 0 6px; font-size: 15px; line-height: 1.65; color: #4A4640;">
+        <strong class="email-bold" style="color: #2D2A26;">Notice.</strong> Stay with that sensation. This is the part that moves it. Not analyzing it. Just being with it.
+      </p>
+      <p class="email-body-text" style="margin: 0 0 6px; font-size: 15px; line-height: 1.65; color: #4A4640;">
+        <strong class="email-bold" style="color: #2D2A26;">Ask.</strong> Give the emotion a voice. What does it actually want to say? Not your thoughts about the emotion. The emotion itself. This is the moment the feeling finally gets heard.
       </p>
       <p class="email-body-text" style="margin: 0 0 20px; font-size: 15px; line-height: 1.65; color: #4A4640;">
-        Whether you've already tried your first session or you're waiting for the right moment — here's a quick overview of the 6 steps so you know what to expect:
-      </p>
-      </p>
-      <p class="email-body-text" style="margin: 0 0 6px; font-size: 15px; line-height: 1.65; color: #4A4640;">
-        <strong class="email-bold" style="color: #2D2A26;">1. You'll unload what's in your head.</strong> Type or talk. No filter.
-      </p>
-      <p class="email-body-text" style="margin: 0 0 6px; font-size: 15px; line-height: 1.65; color: #4A4640;">
-        <strong class="email-bold" style="color: #2D2A26;">2. You'll name the emotions.</strong> Just tap the ones that fit.
-      </p>
-      <p class="email-body-text" style="margin: 0 0 6px; font-size: 15px; line-height: 1.65; color: #4A4640;">
-        <strong class="email-bold" style="color: #2D2A26;">3. You'll find it in your body.</strong> Where do you actually feel this?
-      </p>
-      <p class="email-body-text" style="margin: 0 0 6px; font-size: 15px; line-height: 1.65; color: #4A4640;">
-        <strong class="email-bold" style="color: #2D2A26;">4. You'll stay with it for 90 seconds.</strong> This is the part that moves it.
-      </p>
-      <p class="email-body-text" style="margin: 0 0 6px; font-size: 15px; line-height: 1.65; color: #4A4640;">
-        <strong class="email-bold" style="color: #2D2A26;">5. You'll see what's yours to feel and what's not.</strong>
+        <strong class="email-bold" style="color: #2D2A26;">Go.</strong> Choose a different next move. Not the reactive one. The one you actually want.
       </p>
       <p class="email-body-text" style="margin: 0 0 20px; font-size: 15px; line-height: 1.65; color: #4A4640;">
-        <strong class="email-bold" style="color: #2D2A26;">6. You'll choose a different next move.</strong>
-      </p>
-      <p class="email-body-text" style="margin: 0 0 20px; font-size: 15px; line-height: 1.65; color: #4A4640;">
-        The whole thing takes about 5 minutes. Don't wait for a big moment — the small stuff works just as well.
+        The whole thing takes about five minutes. Don't wait for a crisis. The small stuff works just as well. Someone's tone. A text you're overthinking. Guilt about something you said yesterday. Start there.
       </p>
       ${ctaButton('Open Unsnag', 'https://app.unsnag.co')}
       <p class="email-body-text" style="margin: 0; font-size: 15px; line-height: 1.65; color: #4A4640;">
+        Excited for you to try it.<br>
         — Afi
       </p>
     `),
@@ -224,28 +206,29 @@ const TRIAL_SEQUENCE: SequenceEmail[] = [
   {
     key: 'trial-2',
     delayDays: 4,
-    subject: 'The 90-second thing',
+    subject: 'Why the body piece matters so much',
     buildHtml: () => wrapEmail(`
-      <p class="email-heading" style="margin: 0 0 16px; font-size: 22px; font-weight: 600; color: #2D2A26;">
-        Why 90 seconds matters.
+      <p class="email-body-text" style="margin: 0 0 20px; font-size: 15px; line-height: 1.65; color: #4A4640;">
+        When you feel something uncomfortable, your first instinct is to make it stop. Fix the situation. Manage the other person. Explain yourself. Draft a text, delete it, draft another one. Anything but sit there with it.
       </p>
       <p class="email-body-text" style="margin: 0 0 20px; font-size: 15px; line-height: 1.65; color: #4A4640;">
-        When you feel something uncomfortable — guilt, anxiety, that pit in your stomach — your instinct is to make it stop. Fix the situation. Manage the other person. Explain yourself. Anything but sit there with it.
+        Here's what's actually happening: the physical process of a feeling, the tightness, the heat, the pit in your stomach, peaks and passes pretty quickly. If you let it.
       </p>
       <p class="email-body-text" style="margin: 0 0 20px; font-size: 15px; line-height: 1.65; color: #4A4640;">
-        But here's what neuroscience shows: <strong class="email-bold" style="color: #2D2A26;">a feeling fully felt lasts about 90 seconds</strong>. The chemical process in your body — the cortisol, the adrenaline, the tightness — peaks and passes in under two minutes. If you let it.
+        The reason feelings seem to last for hours is because we keep re-triggering them. We replay the conversation. We check their tone. We rehearse what we should have said. Every loop fires the whole thing up again.
       </p>
       <p class="email-body-text" style="margin: 0 0 20px; font-size: 15px; line-height: 1.65; color: #4A4640;">
-        The reason feelings seem to last for hours (or days) is because we keep re-triggering them. We replay the conversation. We check their tone. We think about what we should have said. Every loop restarts the 90-second clock.
+        The Notice step in Unsnag is where you break that cycle. You stay with the sensation. Not the story about the sensation. The sensation itself. And it moves.
       </p>
       <p class="email-body-text" style="margin: 0 0 20px; font-size: 15px; line-height: 1.65; color: #4A4640;">
-        Step 4 in Unsnag — the Notice step — is where you just stay with the sensation in your body for 90 seconds. That's it. You don't fix it. You don't analyze it. You feel it. And it moves.
+        People describe it differently. Some say the tightness softens. Some say they take a deep breath they didn't know they were holding. Some say nothing dramatic happens, but the urgency just drops.
       </p>
       <p class="email-body-text" style="margin: 0 0 20px; font-size: 15px; line-height: 1.65; color: #4A4640;">
-        If you haven't done a session yet, try it next time something's bothering you. If you have — you already know what I'm talking about.
+        This post goes into the whole concept if you want to understand it more deeply: <a href="https://unsnag.co/blog/what-does-feeling-your-feelings-mean.html" style="color: #2D2A26; font-weight: 600;">What does "feeling your feelings" actually mean?</a>
       </p>
-      ${ctaButton('Open Unsnag', 'https://app.unsnag.co')}
       <p class="email-body-text" style="margin: 0; font-size: 15px; line-height: 1.65; color: #4A4640;">
+        It's worth the read. Promise.<br><br>
+        ${ctaButton('Open Unsnag', 'https://app.unsnag.co')}
         — Afi
       </p>
     `),
@@ -253,25 +236,28 @@ const TRIAL_SEQUENCE: SequenceEmail[] = [
   {
     key: 'trial-3',
     delayDays: 8,
-    subject: 'Have you noticed anything?',
+    subject: 'The shift is quieter than you\\'d expect',
     buildHtml: () => wrapEmail(`
-      <p class="email-heading" style="margin: 0 0 16px; font-size: 22px; font-weight: 600; color: #2D2A26;">
-        Quick check-in.
+      <p class="email-body-text" style="margin: 0 0 20px; font-size: 15px; line-height: 1.65; color: #4A4640;">
+        You've had Unsnag for about a week. Here's what I'd be looking for if I were you:
       </p>
       <p class="email-body-text" style="margin: 0 0 20px; font-size: 15px; line-height: 1.65; color: #4A4640;">
-        You've had Unsnag for about a week now. I wanted to check in.
+        It's not a lightning bolt. It's more like: you're in a conversation that used to make you freeze, and you say the thing. Or someone's disappointed in you and you don't immediately try to fix it. Or you notice the tightness in your chest and instead of going down the rabbit hole, you just... notice it. And it passes.
       </p>
       <p class="email-body-text" style="margin: 0 0 20px; font-size: 15px; line-height: 1.65; color: #4A4640;">
-        If you've been using it, you might've noticed something shift. Maybe a moment where you caught yourself about to spiral and didn't. Or a conversation where you said what you actually meant instead of what felt safe. Those are the signs.
+        These moments are easy to miss because they're absences. The text you didn't agonize over. The guilt that showed up and then left without taking over your evening.
       </p>
       <p class="email-body-text" style="margin: 0 0 20px; font-size: 15px; line-height: 1.65; color: #4A4640;">
-        If you haven't used it yet — no pressure. But the next time something bothers you, try it. Even something small. The small stuff is where the practice happens.
+        If you've been doing sessions, look for those. They're the proof.
       </p>
       <p class="email-body-text" style="margin: 0 0 20px; font-size: 15px; line-height: 1.65; color: #4A4640;">
-        The whole point of Unsnag is repetition. Every time you use it, the old reactive pattern loses a little more grip. It's not about one big session — it's about doing it over and over until the default changes.
+        If you haven't started yet, no pressure. But next time something bothers you, try it with something small. The small moments are where the practice actually happens.
+      </p>
+      <p class="email-body-text" style="margin: 0 0 20px; font-size: 15px; line-height: 1.65; color: #4A4640;">
+        This post is basically about this exact phase: <a href="https://unsnag.co/blog/still-stuck-after-all-the-work.html" style="color: #2D2A26; font-weight: 600;">Still stuck after all the work? Here's what's missing.</a>
       </p>
       <p class="email-body-text" style="margin: 0; font-size: 15px; line-height: 1.65; color: #4A4640;">
-        Rooting for you.<br>
+        Rooting for you. Genuinely.<br>
         — Afi
       </p>
     `),
@@ -279,26 +265,20 @@ const TRIAL_SEQUENCE: SequenceEmail[] = [
   {
     key: 'trial-4',
     delayDays: 12,
-    subject: 'Your trial ends in 2 days',
+    subject: 'Your trial wraps up soon',
     buildHtml: () => wrapEmail(`
-      <p class="email-heading" style="margin: 0 0 16px; font-size: 22px; font-weight: 600; color: #2D2A26;">
-        Your free trial wraps up soon.
+      <p class="email-body-text" style="margin: 0 0 20px; font-size: 15px; line-height: 1.65; color: #4A4640;">
+        Your 14-day trial ends in a couple days.
       </p>
       <p class="email-body-text" style="margin: 0 0 20px; font-size: 15px; line-height: 1.65; color: #4A4640;">
-        In a couple days, your 14-day trial ends. I wanted to be straightforward about what that means:
-      </p>
-      <p class="email-body-text" style="margin: 0 0 6px; font-size: 15px; line-height: 1.65; color: #4A4640;">
-        <strong class="email-bold" style="color: #2D2A26;">If you subscribe ($5/month)</strong> — you keep full access. Unlimited sessions, whenever something's bothering you, cancel anytime.
+        If Unsnag has been useful, subscribing keeps it there whenever you need it. $5/month. Unlimited sessions. Cancel anytime. It's there at 11pm on a Tuesday, in the car after a hard conversation, whenever the old patterns kick in.
       </p>
       <p class="email-body-text" style="margin: 0 0 20px; font-size: 15px; line-height: 1.65; color: #4A4640;">
-        <strong class="email-bold" style="color: #2D2A26;">If you don't</strong> — you won't be able to start new sessions until you subscribe. If you'd like to delete your account, you can do that from your settings page.
+        If the timing isn't right, that's okay. You can always come back.
       </p>
-      <p class="email-body-text" style="margin: 0 0 20px; font-size: 15px; line-height: 1.65; color: #4A4640;">
-        $5/month is less than one therapy co-pay. It's there every time you need it — at 11pm on a Tuesday, in the car after a hard conversation, whenever the spiral starts. No appointments, no waiting.
-      </p>
-      ${ctaButton('Subscribe — $5/month', 'https://app.unsnag.co')}
+      ${ctaButton('Subscribe. $5/month.', 'https://app.unsnag.co')}
       <p class="email-body-text" style="margin: 0; font-size: 15px; line-height: 1.65; color: #4A4640;">
-        Either way — thanks for trying it.<br>
+        Thanks for trying it. I mean that.<br>
         — Afi
       </p>
     `),
@@ -309,29 +289,23 @@ const SUBSCRIBED_EMAIL = {
   key: 'subscribed-1',
   subject: "You're in.",
   buildHtml: () => wrapEmail(`
-    <p class="email-heading" style="margin: 0 0 16px; font-size: 22px; font-weight: 600; color: #2D2A26;">
-      You're in. For real.
+    <p class="email-body-text" style="margin: 0 0 20px; font-size: 15px; line-height: 1.65; color: #4A4640;">
+      You just subscribed. Unlimited sessions, whenever you need them.
     </p>
     <p class="email-body-text" style="margin: 0 0 20px; font-size: 15px; line-height: 1.65; color: #4A4640;">
-      You just subscribed to Unsnag. That means unlimited sessions, whenever you need them, for as long as you want.
+      One ask: use it in the moment. Not as a weekly practice. In the moment. When someone's tone gets under your skin. When you're replaying a conversation at midnight. When you want to say something but the words won't come out.
     </p>
     <p class="email-body-text" style="margin: 0 0 20px; font-size: 15px; line-height: 1.65; color: #4A4640;">
-      Here's the only thing I'd ask: <strong class="email-bold" style="color: #2D2A26;">use it.</strong> Not once a week as a wellness practice. Use it in the moment — when someone's tone gets under your skin, when you're replaying a conversation, when you want to say something but the words won't come out. That's when it works.
-    </p>
-    <p class="email-body-text" style="margin: 0 0 20px; font-size: 15px; line-height: 1.65; color: #4A4640;">
-      Every time you use it, the old pattern loses a little more grip. You won't notice it right away. But one day you'll be in a situation that used to send you spiraling, and you'll just... handle it. Differently. That's the shift.
-    </p>
-    <p class="email-body-text" style="margin: 0 0 20px; font-size: 15px; line-height: 1.65; color: #4A4640;">
-      A few things to know:
+      Every session is a rep. The old reactive pattern doesn't disappear in one session. It gets weaker every time you choose to feel the feeling instead of performing through it. One day you'll be in a situation that used to wreck you, and you'll just handle it differently. You won't even notice at first. That's the shift.
     </p>
     <p class="email-body-text" style="margin: 0 0 6px; font-size: 15px; line-height: 1.65; color: #4A4640;">
-      <strong class="email-bold" style="color: #2D2A26;">Your history is saved.</strong> Every session lives in your history tab. Over time you'll see the same triggers showing up differently — that's the pattern losing its grip.
+      <strong class="email-bold" style="color: #2D2A26;">Your history is saved.</strong> Every session lives in your history tab. Over time, same triggers, different responses. That's visible proof.
     </p>
     <p class="email-body-text" style="margin: 0 0 6px; font-size: 15px; line-height: 1.65; color: #4A4640;">
-      <strong class="email-bold" style="color: #2D2A26;">Cancel anytime.</strong> No hoops, no retention tricks. You can manage your subscription from your settings page.
+      <strong class="email-bold" style="color: #2D2A26;">Cancel anytime.</strong> No hoops. Manage it from settings.
     </p>
     <p class="email-body-text" style="margin: 0 0 20px; font-size: 15px; line-height: 1.65; color: #4A4640;">
-      <strong class="email-bold" style="color: #2D2A26;">I read every reply.</strong> If something's not working or you have feedback, just reply to this email.
+      <strong class="email-bold" style="color: #2D2A26;">I read every reply.</strong> Feedback, frustrations, wins. Just reply.
     </p>
     ${ctaButton('Open Unsnag', 'https://app.unsnag.co')}
     <p class="email-body-text" style="margin: 0; font-size: 15px; line-height: 1.65; color: #4A4640;">
